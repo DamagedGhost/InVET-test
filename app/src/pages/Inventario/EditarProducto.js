@@ -4,61 +4,84 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useProductsViewModel from "../../viewmodels/useProductsViewModel";
 
 const EditarProducto = () => {
-    const { id } = useParams(); // Obtiene el ID desde la URL
+    const { id } = useParams(); // Obtiene el ID (que ahora es el _id de MongoDB)
     const navigate = useNavigate();
-    const { getProductoById, updateProducto } = useProductsViewModel();
+    // 1. Reemplazamos getProductoById con fetchProductoById
+    const { fetchProductoById, updateProducto } = useProductsViewModel();
 
     // Estado local del formulario
     const [formData, setFormData] = useState({
+        id: id, // Mantenemos el ID de la URL
         codigo: '',
         title: '',
         descripcion: '',
-        price: '',
-        stock: '',
-        stockCritico: '',
+        price: 0,
+        stock: 0,
+        stockCritico: 0,
         categoria: '',
-        image: '', // <-- CAMPO NUEVO AÑADIDO
+        image: '', 
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     // Cargar los datos del producto cuando el componente se monte
     useEffect(() => {
-        // Convertimos el ID de string a número
-        const productoId = parseInt(id, 10);
-        const producto = getProductoById(productoId);
-        
-        if (producto) {
-            setFormData(producto); // Carga los datos del producto en el formulario
-        } else {
-            alert("Producto no encontrado");
-            navigate('/Admin/Inventario/ListadoProductos');
-        }
-    }, [id, getProductoById, navigate]);
+        const loadProductData = async () => {
+            setIsLoading(true);
+            // 2. Usamos la nueva función asíncrona para obtener los datos
+            const producto = await fetchProductoById(id);
+            
+            if (producto) {
+                // Mantenemos los valores como números/strings según vienen de la API
+                setFormData({
+                    ...producto,
+                    // Aseguramos que los valores sean utilizables
+                    price: producto.price || 0,
+                    stock: producto.stock || 0,
+                    stockCritico: producto.stockCritico || 0,
+                }); 
+            } else {
+                // window.alert("Producto no encontrado o error de conexión."); // Evitar alert
+                console.error("Producto no encontrado o error de conexión.");
+                navigate('/Admin/Inventario/ListadoProductos');
+            }
+            setIsLoading(false);
+        };
+
+        loadProductData();
+        // Las dependencias solo incluyen el ID y la función de fetch
+    }, [id, fetchProductoById, navigate]);
 
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        // Convertir valores numéricos a número ANTES de guardarlos en el estado
+        const parsedValue = (type === 'number' || name === 'price' || name === 'stock' || name === 'stockCritico') 
+                            ? Number(value) : value;
+
         setFormData(prevData => ({
             ...prevData,
-            [name]: value
+            [name]: parsedValue
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Convertimos los datos numéricos antes de guardar
-        const dataToUpdate = {
-            ...formData,
-            price: parseInt(formData.price, 10),
-            stock: parseInt(formData.stock, 10),
-            stockCritico: parseInt(formData.stockCritico, 10),
-        };
+        // 3. Await la actualización
+        const success = await updateProducto(formData.id, formData);
         
-        updateProducto(formData.id, dataToUpdate);
-        
-        alert('¡Producto actualizado con éxito!');
-        navigate('/Admin/Inventario/ListadoProductos');
+        if (success) {
+            // window.alert('¡Producto actualizado con éxito!'); // Evitar alert
+            console.log('¡Producto actualizado con éxito!');
+            navigate('/Admin/Inventario/ListadoProductos');
+        }
+        // Si no es exitoso, el hook ya mostró un alert de error.
     };
+
+    if (isLoading) {
+        return <AdminTemplate>Cargando producto...</AdminTemplate>;
+    }
+
 
     return (
         <AdminTemplate>
@@ -95,7 +118,7 @@ const EditarProducto = () => {
                             </div>
                         </div>
                         
-                        {/* --- CAMPO DE IMAGEN AÑADIDO --- */}
+                        {/* --- CAMPO DE IMAGEN --- */}
                         <div className="mb-3">
                             <label htmlFor="image">URL de la Imagen</label>
                             <input 
@@ -108,7 +131,6 @@ const EditarProducto = () => {
                                 placeholder="https://ejemplo.com/imagen.png"
                             />
                         </div>
-                        {/* --- FIN DE CAMPO AÑADIDO --- */}
 
                         <div className="mb-3">
                             <label htmlFor="descripcion">Descripción</label>
@@ -124,6 +146,7 @@ const EditarProducto = () => {
                                 <label htmlFor="price">Precio *</label>
                                 <input 
                                     type="number" id="price" name="price"
+                                    // Aseguramos que el valor es numérico para el input
                                     value={formData.price} onChange={handleChange}
                                     required className="form-control" 
                                 />

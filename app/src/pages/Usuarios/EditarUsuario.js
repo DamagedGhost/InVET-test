@@ -5,38 +5,63 @@ import useUserViewModel from '../../viewmodels/useUserViewModel';
 import Button from '../../components/atoms/Button';
 
 const EditarUsuario = () => {
-    const { id } = useParams(); // <-- Obtener el ID de la URL
+    const { id } = useParams(); // <-- Obtener el ID (que es el _id de MongoDB)
     const navigate = useNavigate();
-    const { getUserById, updateUser } = useUserViewModel();
+    // 1. Reemplazamos getUserById con fetchUserById
+    const { fetchUserById, updateUser } = useUserViewModel();
     
     const [formData, setFormData] = useState({
+        id: id, // Mantenemos el ID de la URL
         rut: '', nombre: '', apellidos: '', correo: '',
         rol: '', region: '', comuna: '', direccion: ''
+        // Nota: la contraseña no se carga por seguridad
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     // Cargar datos del usuario al montar
     useEffect(() => {
-        const userId = parseInt(id, 10);
-        const user = getUserById(userId);
-        if (user) {
-            setFormData(user);
-        } else {
-            alert("Usuario no encontrado");
-            navigate('/Admin/Usuarios/ListarUsuarios');
-        }
-    }, [id, getUserById, navigate]);
+        const loadUserData = async () => {
+            setIsLoading(true);
+            // 2. Usamos la nueva función asíncrona para obtener los datos
+            const user = await fetchUserById(id);
+
+            if (user) {
+                // El usuario ya viene mapeado con id: _id de Mongo
+                setFormData(user);
+            } else {
+                // window.alert("Usuario no encontrado o error de conexión."); // Evitar alert
+                console.error("Usuario no encontrado o error de conexión.");
+                navigate('/Admin/Usuarios/ListarUsuarios');
+            }
+            setIsLoading(false);
+        };
+        
+        loadUserData();
+    }, [id, fetchUserById, navigate]);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        updateUser(formData.id, formData);
-        alert('Usuario actualizado exitosamente');
-        navigate('/Admin/Usuarios/ListarUsuarios');
+        
+        // 3. Await la actualización
+        const updatedUser = await updateUser(formData.id, formData);
+
+        if (updatedUser) {
+            // window.alert('Usuario actualizado exitosamente'); // Evitar alert
+            console.log('Usuario actualizado exitosamente');
+            navigate('/Admin/Usuarios/ListarUsuarios');
+        }
+        // Si no es exitoso, el hook ya mostró un alert de error.
     };
+    
+    if (isLoading) {
+        return <AdminTemplate>Cargando usuario...</AdminTemplate>;
+    }
+
 
   return (
     <AdminTemplate>

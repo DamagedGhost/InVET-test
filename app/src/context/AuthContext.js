@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import useUserViewModel from '../viewmodels/useUserViewModel';
 import { useNavigate } from 'react-router-dom';
 
-const AUTH_KEY = 'authUser'; // Clave para guardar en localStorage
+//TODO: ESTA ES UNA URL DE PRUEBA, SE CONECTA A UN SERVIDOR EXTERNO, CON EL PROPÓSITO DE PROBAR LA APLICACIÓN EN UN ENTORNO REAL, DEBE SER LA URL DE NUESTRO BACKEND
+// URL base de nuestro backend
+const API_BASE_URL = 'http://98.91.150.2:5000/api'; 
+const AUTH_KEY = 'authUser'; 
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,48 +14,74 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem(AUTH_KEY);
         try {
-            // Si existe, lo cargamos en el estado
             return storedUser ? JSON.parse(storedUser) : null;
         } catch (e) {
-            console.error("Error al parsear usuario de localStorage", e);
-            localStorage.removeItem(AUTH_KEY); // Limpiar si está corrupto
+            console.error("[FE-AUTH] Error al parsear usuario de localStorage", e);
+            localStorage.removeItem(AUTH_KEY); 
             return null;
         }
     });
 
-    const { findUserByEmailAndPassword } = useUserViewModel();
     const navigate = useNavigate();
 
-    // CUALQUIER cambio en 'user' se guarda en localStorage
+    // Sincronizar estado 'user' con localStorage
     useEffect(() => {
         if (user) {
-            // Si el usuario existe (login), lo guardamos
             localStorage.setItem(AUTH_KEY, JSON.stringify(user));
         } else {
-            // Si el usuario es null (logout), lo borramos
             localStorage.removeItem(AUTH_KEY);
         }
-    }, [user]); // Este efecto se ejecuta cada vez que 'user' cambia
+    }, [user]); 
 
-    // Función de Login (ahora solo setea el estado)
-    const login = (email, password) => {
-        const foundUser = findUserByEmailAndPassword(email, password);
-        if (foundUser) {
-            setUser(foundUser); // <-- Esto activa el useEffect y lo guarda
-            if (foundUser.rol === 'admin') {
-                navigate('/Admin');
+    // Función de Login: Ahora usa la API REST
+    const login = async (correo, password) => {
+        const url = `${API_BASE_URL}/usuarios/login`;
+        console.log(`[FE-AUTH] ➡️ Llamada a login: ${url}`); // Debug: URL de la llamada
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ correo, password }),
+            });
+
+            // Debug: Staus y respuesta (si es necesario)
+            console.log(`[FE-AUTH] ⬅️ Respuesta de la API, Status: ${response.status}`); 
+            
+            const data = await response.json();
+
+            if (response.ok) {
+                // Login exitoso
+                console.log("[FE-AUTH] ✅ Login exitoso. Usuario:", data.user.correo);
+                const loggedInUser = data.user;
+                setUser(loggedInUser); 
+                
+                // Redirección basada en el rol
+                if (loggedInUser.rol === 'admin') {
+                    navigate('/Admin');
+                } else {
+                    // Por ahora, si no es admin, lo dejamos en /
+                    navigate('/');
+                }
+                return true;
             } else {
-                navigate('/');
+                // Login fallido (contraseña o correo incorrectos)
+                console.error("[FE-AUTH] ❌ Login fallido. Mensaje:", data.message);
+                alert(data.message || 'Error de autenticación.');
+                return false;
             }
-            return true;
+        } catch (e) {
+            console.error("[FE-AUTH] ⚠️ Error de red o conexión. Asegúrate que el backend esté activo en puerto 5000.", e);
+            alert('Error de conexión con el servidor. Asegúrate de que el backend esté activo en el puerto 5000.');
+            return false;
         }
-        alert('Correo o contraseña incorrectos.');
-        return false;
     };
 
-    // Función de Logout (ahora solo limpia el estado)
+    // Función de Logout (limpia el estado local y redirige)
     const logout = () => {
-        setUser(null); // <-- Esto activa el useEffect y lo borra
+        console.log("[FE-AUTH] 🚪 Logout ejecutado.");
+        setUser(null); 
         navigate('/');
     };
 
