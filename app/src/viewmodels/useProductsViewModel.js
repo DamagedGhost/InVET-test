@@ -1,51 +1,39 @@
 import { useState, useEffect, useCallback } from 'react';
 
-//TODO: ESTA ES UNA URL DE PRUEBA, SE CONECTA A UN SERVIDOR EXTERNO, CON EL PROPÓSITO DE PROBAR LA APLICACIÓN EN UN ENTORNO REAL, DEBE SER LA URL DE NUESTRO BACKEND
+// URL de tu servidor en AWS
 const API_BASE_URL = 'http://98.91.150.2:5000/api/productos';
 
-// Hook principal que manejará el CRUD con la API
 const useProductsViewModel = () => {
   
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Función para obtener todos los productos
+  // --- 1. FETCH ALL (Ya tenía useCallback, está bien) ---
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
-    console.log(`[FE-PROD] ➡️ Llamada GET: ${API_BASE_URL}`);
     try {
       const response = await fetch(API_BASE_URL);
-      console.log(`[FE-PROD] ⬅️ Respuesta GET. Status: ${response.status}`);
-      
-      if (!response.ok) {
-        throw new Error('No se pudo obtener la lista de productos.');
-      }
+      if (!response.ok) throw new Error('Error al cargar productos');
       const data = await response.json();
       
-      const mappedData = data.map(p => ({
-          ...p,
-          id: p._id // Usamos _id de MongoDB como ID en el frontend
-      }));
+      const mappedData = data.map(p => ({ ...p, id: p._id }));
       setProducts(mappedData);
-      console.log(`[FE-PROD] ✅ ${mappedData.length} productos cargados.`);
     } catch (e) {
       setError(e.message);
-      console.error("[FE-PROD] ❌ Error al cargar productos:", e.message);
+      console.error(e);
     } finally {
       setLoading(false);
     }
-  }, []); // Dependencias vacías: solo se define una vez
+  }, []);
 
-  // Se llama a fetchProducts la primera vez que se monta el componente
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]); 
 
-  // --- FUNCIÓN CREATE ---
-  const addProducto = async (productoData) => {
-    console.log('[FE-PROD] ➡️ Llamada POST para crear:', productoData.title);
+  // --- 2. CREATE (Agregamos useCallback) ---
+  const addProducto = useCallback(async (productoData) => {
     try {
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
@@ -53,54 +41,43 @@ const useProductsViewModel = () => {
             body: JSON.stringify(productoData),
         });
 
-        console.log(`[FE-PROD] ⬅️ Respuesta POST. Status: ${response.status}`);
-
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al agregar producto.');
+            throw new Error(errorData.message || 'Error al agregar');
         }
 
-        console.log('[FE-PROD] ✅ Producto creado exitosamente. Recargando lista...');
-        await fetchProducts();
+        await fetchProducts(); // Recargar lista
         return true;
 
     } catch (e) {
-        alert(`Error al guardar producto: ${e.message}`);
-        console.error("[FE-PROD] ❌ Error en POST:", e.message);
+        alert(`Error: ${e.message}`);
         return false;
     }
-  };
+  }, [fetchProducts]); // Dependencia: fetchProducts
 
-  // --- FUNCIÓN READ (Single) ---
-  const getProductoById = (id) => {
+  // --- 3. READ SINGLE (Sync) ---
+  const getProductoById = useCallback((id) => {
     return products.find(p => p.id === id);
-  };
+  }, [products]);
     
-  // Esta es la versión que hace fetch directo para edición
-  const fetchProductoById = async (id) => {
+  // --- 4. READ SINGLE ASYNC (Agregamos useCallback) ---
+  // AQUÍ ESTABA EL PROBLEMA DEL CICLO INFINITO
+  const fetchProductoById = useCallback(async (id) => {
     const url = `${API_BASE_URL}/${id}`;
-    console.log(`[FE-PROD] ➡️ Llamada GET single: ${url}`);
     try {
         const response = await fetch(url);
-        console.log(`[FE-PROD] ⬅️ Respuesta GET single. Status: ${response.status}`);
-        
-        if (!response.ok) {
-            throw new Error('Producto no encontrado en la base de datos.');
-        }
+        if (!response.ok) throw new Error('Producto no encontrado');
         const data = await response.json();
-        console.log('[FE-PROD] ✅ Producto individual obtenido.');
         return { ...data, id: data._id };
     } catch (e) {
-        console.error("[FE-PROD] ❌ Error al obtener producto por ID:", e.message);
+        console.error("Error fetchProductoById:", e);
         return null;
     }
-  };
+  }, []); // Sin dependencias externas que cambien
 
-
-  // --- FUNCIÓN UPDATE ---
-  const updateProducto = async (id, updatedData) => {
+  // --- 5. UPDATE (Agregamos useCallback) ---
+  const updateProducto = useCallback(async (id, updatedData) => {
     const url = `${API_BASE_URL}/${id}`;
-    console.log(`[FE-PROD] ➡️ Llamada PUT para ID: ${id}`);
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -108,51 +85,35 @@ const useProductsViewModel = () => {
             body: JSON.stringify(updatedData),
         });
         
-        console.log(`[FE-PROD] ⬅️ Respuesta PUT. Status: ${response.status}`);
-
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al actualizar producto.');
+            throw new Error(errorData.message || 'Error al actualizar');
         }
 
-        console.log('[FE-PROD] ✅ Producto actualizado exitosamente. Recargando lista...');
         await fetchProducts();
         return true;
         
     } catch (e) {
-        alert(`Error al actualizar producto: ${e.message}`);
-        console.error("[FE-PROD] ❌ Error en PUT:", e.message);
+        alert(`Error: ${e.message}`);
         return false;
     }
-  };
+  }, [fetchProducts]);
 
-  // --- FUNCIÓN DELETE ---
-  const deleteProducto = async (id) => {
+  // --- 6. DELETE (Agregamos useCallback) ---
+  const deleteProducto = useCallback(async (id) => {
     const url = `${API_BASE_URL}/${id}`;
-    console.log(`[FE-PROD] ➡️ Llamada DELETE para ID: ${id}`);
     try {
-        const response = await fetch(url, {
-            method: 'DELETE',
-        });
-        
-        console.log(`[FE-PROD] ⬅️ Respuesta DELETE. Status: ${response.status}`);
-        
-        if (!response.ok) {
-            throw new Error('Error al eliminar producto.');
-        }
+        const response = await fetch(url, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Error al eliminar');
 
-        console.log('[FE-PROD] ✅ Producto eliminado exitosamente. Recargando lista...');
         await fetchProducts();
         return true;
-        
     } catch (e) {
-        alert(`Error al eliminar producto: ${e.message}`);
-        console.error("[FE-PROD] ❌ Error en DELETE:", e.message);
+        alert(`Error: ${e.message}`);
         return false;
     }
-  };
+  }, [fetchProducts]);
 
-  // Exponemos los productos (READ all) y las funciones CRUD
   return { 
     products, 
     loading,
@@ -160,7 +121,7 @@ const useProductsViewModel = () => {
     fetchProducts,
     addProducto, 
     getProductoById, 
-    fetchProductoById, // Nueva función para obtener al editar
+    fetchProductoById, 
     updateProducto, 
     deleteProducto 
   };
