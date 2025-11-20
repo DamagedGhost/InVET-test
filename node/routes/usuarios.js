@@ -7,19 +7,16 @@ const Usuario = require('../models/Usuario'); // Importa el modelo
 // Lógica de autenticación
 router.post('/login', async (req, res) => {
     const { correo, password } = req.body;
-    console.log(`[AUTH] Intento de login para: ${correo}`); // Depuración: Quién intenta iniciar sesión
+    console.log(`[AUTH] Intento de login para: ${correo}`); 
     
     try {
-        // Buscar el usuario por correo
         const user = await Usuario.findOne({ correo });
 
-        // 1. Verificar si el usuario existe
         if (!user) {
             console.log(`[AUTH] ❌ Correo no encontrado: ${correo}`);
             return res.status(401).json({ message: 'Credenciales inválidas: Correo no encontrado' });
         }
 
-        // 2. Verificar la contraseña (SIN HASHING por simplicidad, ¡PERO PELIGROSO en producción!)
         if (user.password !== password) {
             console.log(`[AUTH] ❌ Contraseña incorrecta para: ${correo}`);
             return res.status(401).json({ message: 'Credenciales inválidas: Contraseña incorrecta' });
@@ -27,7 +24,6 @@ router.post('/login', async (req, res) => {
         
         console.log(`[AUTH] ✅ Login exitoso para ${correo} (${user.rol})`);
 
-        // Si las credenciales son correctas, devolvemos los datos del usuario (excluyendo la contraseña)
         const userObject = user.toObject();
         delete userObject.password; 
 
@@ -47,7 +43,7 @@ router.post('/login', async (req, res) => {
 
 
 // POST /api/usuarios
-// Crear un nuevo usuario (Registro)
+// Crear un nuevo usuario
 router.post('/', async (req, res) => {
     console.log('[USER] ➕ Recibiendo datos para nuevo usuario:', req.body.correo);
     try {
@@ -93,9 +89,32 @@ router.get('/', async (req, res) => {
     }
 });
 
+// --- 🔴 ESTA ERA LA RUTA QUE FALTABA ---
+// GET /api/usuarios/:id
+// Obtener UN usuario por ID
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await Usuario.findById(req.params.id).select('-password');
+        if (!user) {
+            console.log(`[USER] ❌ Usuario no encontrado ID: ${req.params.id}`);
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        
+        console.log(`[USER] ✅ Usuario encontrado: ${user.nombre}`);
+        
+        // Mapear _id a id
+        const userObject = user.toObject();
+        res.json({ id: userObject._id, ...userObject });
+        
+    } catch (error) {
+        console.error(`[USER] ❌ Error al obtener usuario individual: ${error.message}`);
+        res.status(500).json({ message: 'Error al obtener usuario' });
+    }
+});
+
 
 // PUT /api/usuarios/:id
-// Actualizar un usuario por su ID
+// Actualizar un usuario
 router.put('/:id', async (req, res) => {
     console.log(`[USER] ✍️ Petición de actualización para ID: ${req.params.id}`);
     try {
@@ -129,7 +148,7 @@ router.put('/:id', async (req, res) => {
 
 
 // DELETE /api/usuarios/:id
-// Eliminar un usuario por su ID
+// Eliminar un usuario
 router.delete('/:id', async (req, res) => {
     console.log(`[USER] 🗑️ Petición de eliminación para ID: ${req.params.id}`);
     try {
@@ -147,4 +166,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-module.exports = router;
+module.exports = router;            
