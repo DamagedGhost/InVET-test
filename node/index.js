@@ -34,7 +34,7 @@ app.use('/api/usuarios', userRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-    res.send('API REST de On The Go Music activa y conectada a MongoDB.');
+    res.send('API REST de InVET activa y conectada a MongoDB.');
 });
 
 // --- 4. Inicialización del Servidor ---

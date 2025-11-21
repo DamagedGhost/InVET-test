@@ -14,7 +14,7 @@ const NavbarVerticalAdmin = () => {
                     {/* Logo */}
                     <div className="d-flex align-items-center gap-2 p-2">
                         <i className="bi bi-vinyl-fill fs-4"></i>
-                        <span className="fs-5">On the go music</span>
+                        <span className="fs-5">InVET</span>
                     </div>
 
                     {/* Menú de Navegación */}
