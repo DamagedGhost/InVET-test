@@ -5,10 +5,10 @@ const Usuario = require('./models/Usuario'); // Importar el modelo de Usuario
 const connectDB = require('./db'); // Importar la conexión a la DB
 
 const crearAdmin = async () => {
-    // 1. Conectar a la base de datos
+    //  Conectar a la base de datos
     await connectDB();
 
-    // 2. Definir los datos del usuario Admin
+    //  Definir los datos del usuario Admin
     // Estos campos coinciden con los que definiste en models/Usuario.js
     const adminData = {
         rut: '99.999.999-K',          // RUT ficticio para el admin
@@ -23,26 +23,26 @@ const crearAdmin = async () => {
     };
 
     try {
-        // 3. Verificar si ya existe
+        //  Verificar si ya existe
         const existeAdmin = await Usuario.findOne({ correo: adminData.correo });
         
         if (existeAdmin) {
-            console.log('⚠️ El usuario admin ya existe en la base de datos.');
+            console.log(' El usuario admin ya existe en la base de datos.');
             // Opcional: Si quieres sobrescribirlo/actualizarlo, descomenta la siguiente línea:
             // await Usuario.findOneAndUpdate({ correo: adminData.correo }, adminData);
         } else {
-            // 4. Crear el usuario
+            //  Crear el usuario
             const nuevoAdmin = new Usuario(adminData);
             await nuevoAdmin.save();
-            console.log('✅ Usuario ADMIN creado exitosamente:');
+            console.log(' Usuario ADMIN creado exitosamente:');
             console.log(`   - Correo: ${adminData.correo}`);
             console.log(`   - Contraseña: ${adminData.password}`);
         }
 
     } catch (error) {
-        console.error('❌ Error al crear el usuario admin:', error.message);
+        console.error(' Error al crear el usuario admin:', error.message);
     } finally {
-        // 5. Cerrar la conexión y terminar el script
+        //  Cerrar la conexión y terminar el script
         mongoose.connection.close();
         process.exit();
     }

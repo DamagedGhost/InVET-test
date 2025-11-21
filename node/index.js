@@ -8,12 +8,12 @@ const connectDB = require('./db'); // Importa la función de conexión a la DB
 const productoRoutes = require('./routes/productos');
 const userRoutes = require('./routes/usuarios');
 
-// --- 1. Inicialización y Conexión a DB ---
+// ---  Inicialización y Conexión a DB ---
 connectDB();
 
 const app = express();
 
-// --- 2. Middlewares ---
+// ---  Middlewares ---
 // CORS: Permite que React (que correrá en un puerto diferente) pueda hacer peticiones
 app.use(cors()); 
 // Body Parser: Permite a Express leer JSON en el body de las peticiones (POST, PUT)
@@ -21,11 +21,11 @@ app.use(express.json());
 
 // Middleware de Logging (Depuración Global)
 app.use((req, res, next) => {
-    console.log(`[API] ➡️ ${req.method} ${req.originalUrl}`);
+    console.log(`[API] ${req.method} ${req.originalUrl}`);
     next();
 });
 
-// --- 3. Definición de Rutas (Endpoints) ---
+// --- Definición de Rutas (Endpoints) ---
 // Las rutas de productos se manejarán con el prefijo /api/productos
 app.use('/api/productos', productoRoutes);
 
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
     res.send('API REST de InVET activa y conectada a MongoDB.');
 });
 
-// --- 4. Inicialización del Servidor ---
+// --- Inicialización del Servidor ---
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

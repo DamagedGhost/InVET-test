@@ -7,7 +7,7 @@ const UsuarioSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
     apellidos: { type: String, required: true },
     correo: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true }, // Nota: En un entorno real se usaría hashing (ej. bcrypt)
+    password: { type: String, required: true }, 
     rol: { type: String, enum: ['admin', 'client'], default: 'client' }, // Rol: admin o client
     region: { type: String },
     comuna: { type: String },
