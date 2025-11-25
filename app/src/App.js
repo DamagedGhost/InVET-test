@@ -2,6 +2,15 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom'; 
 import './App.css';
 
+// Paginas principales tienda
+import HomePage from './pages/HomePage';
+
+// Paginas carrito
+import CarritoPage from './pages/Carrito/CarritoPage';
+import ComporaPage from './pages/Carrito/CompraPage';
+import PagoCorrectoPage from './pages/Carrito/PagoCorrectoPage';
+import PagoErrorPage from './pages/Carrito/PagoErrorPage';
+
 // Autenticación
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -28,7 +37,12 @@ function App() {
     <>
       <Routes>
         {/* 1. Ruta Pública: Login es la página por defecto '/' */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/compra" element={<ComporaPage />} />
+        <Route path="/pago-correcto" element={<PagoCorrectoPage />} />
+        <Route path="/pago-error" element={<PagoErrorPage />} />
+        <Route path="/" element={<HomePage />} />
 
         {/* 2. Rutas Protegidas (Requieren Login y Rol Admin) */}
         <Route element={<ProtectedRoute />}>
