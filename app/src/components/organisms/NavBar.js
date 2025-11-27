@@ -28,8 +28,8 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <ul className="navbar-nav me-auto">
-          <li><Link className="nav-link active" to="/home">Inicio</Link></li>
-          <li><Link className="nav-link" to="/categoria">Categoria</Link></li>
+          <li><Link className="nav-link active" to="/">Inicio</Link></li>
+          <li><Link className="nav-link" to="/categorias">Categoria</Link></li>
         <li><Link className="nav-link" to="/productos">Productos</Link></li>
           <li><Link className="nav-link" to="/nosotros">Nosotros</Link></li>
         </ul>

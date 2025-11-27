@@ -143,9 +143,9 @@ const NuevoProducto = () => {
                         className="form-select" required
                       >
                         <option value="">Seleccione categoría</option>
-                        <option value="Guitarras">Guitarras</option>
-                        <option value="Teclados">Teclados</option>
-                        <option value="Baterías">Baterías</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Accesorios">Accesorios</option>
+                        <option value="Medicamentos">Medicamentos</option>
                         <option value="Otros">Otros</option>
                       </select>
                     </div>

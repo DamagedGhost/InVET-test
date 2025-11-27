@@ -11,19 +11,15 @@ const NavbarVerticalAdmin = () => {
                 
                 {/* Sección Superior: Logo y Menú */}
                 <div>
-                    {/* Logo */}
                     <div className="d-flex align-items-center gap-2 p-2">
                         <i className="bi bi-vinyl-fill fs-4"></i>
                         <span className="fs-5">InVET</span>
                     </div>
 
-                    {/* Menú de Navegación */}
                     <div className="border-top my-3 pt-3" id="admin-nav-top">
                         <ul className="nav flex-column mb-3">
-                            
-                            {/* Item de Menú (Patrón) */}
+
                             <li className="nav-item">
-                                {/* Se usa <Link> y la ruta 'to' debe coincidir con tu App.js */}
                                 <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin">
                                     <i className="bi bi-grid-fill"></i>
                                     Dashboard
@@ -57,13 +53,20 @@ const NavbarVerticalAdmin = () => {
                                     Usuarios
                                 </Link>
                             </li>
-                            
+
+                            {/* ====================================================== */}
+                            {/* === CAMBIO NUEVO: CLIENTES → CRUD MASCOTAS         === */}
+                            {/* ====================================================== */}
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="#">
+                                <Link 
+                                  className="nav-link text-white d-flex align-items-center gap-2" 
+                                  to="/admin/clientes/mascotas"
+                                >
                                     <i className="bi bi-person-standing"></i>
                                     Clientes
                                 </Link>
                             </li>
+                            {/* ====================================================== */}
 
                             <li className="nav-item">
                                 <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Categorias">
@@ -75,7 +78,7 @@ const NavbarVerticalAdmin = () => {
                     </div>
                 </div>
 
-                {/* Sección Inferior: Perfil y Configuración */}
+                {/* Sección Inferior */}
                 <div>
                     <div className="border-top my-3 pt-3" id="admin-nav-bottom">
                         <ul className="nav flex-column">
@@ -94,17 +97,14 @@ const NavbarVerticalAdmin = () => {
                         </ul>
                     </div>
 
-{/* Perfil de Usuario */}
                     <div className="d-flex flex-column p-3 border-top border-secondary" id="admin-user">
                         <div className="d-flex align-items-center">
                             <i className="bi bi-person-circle fs-3 me-2"></i>
                             <div className="d-flex flex-column">
-                                {/* 3. Mostrar nombre de usuario real */}
                                 <span className="fw-bold">{user ? user.nombre : 'Usuario'}</span>
                                 <small className="text-white-50">{user ? user.rol : 'Admin'}</small>
                             </div>
                         </div>
-                        {/* 4. Botón de Cerrar Sesión */}
                         <button 
                             className="btn btn-sm btn-outline-danger mt-3" 
                             onClick={logout}
@@ -114,10 +114,8 @@ const NavbarVerticalAdmin = () => {
                         </button>
                     </div>
                 </div>
-
             </aside>
 
-            {/* --- HEADER --- */}
             <header id="header" className="d-flex justify-content-between align-items-center">
                 <h1 className="h4 m-0">Panel de Administración</h1>
                 <div>
