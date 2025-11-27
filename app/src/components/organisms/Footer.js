@@ -4,7 +4,10 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="text-center p-3 mt-5 custom-footer">
+    <footer
+      className="bg-light text-center p-3 border-top"
+      style={{ fontSize: '0.9rem', left: 0, bottom: 0, width: '100%', zIndex: 1030 }}
+    >
       <p className="mb-0">&copy; 2025 InVET. Todos los derechos reservados.</p>
     </footer>
   );

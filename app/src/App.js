@@ -11,7 +11,7 @@ import NosotrosPage from './pages/Nosotros/NosotrosPage';
 
 // Paginas carrito
 import CarritoPage from './pages/Carrito/CarritoPage';
-import ComporaPage from './pages/Carrito/CompraPage';
+import CompraPage from './pages/Carrito/CompraPage';
 import PagoCorrectoPage from './pages/Carrito/PagoCorrectoPage';
 import PagoErrorPage from './pages/Carrito/PagoErrorPage';
 
@@ -38,7 +38,7 @@ import ProductosCriticos from './pages/Inventario/ProductosCriticos';
 
 // --- CRUD de Mascotas ---
 import MainMascotas from './pages/Clientes/Mascotas/MainMascotas';
-import ListadoMascotas from './pages/Clientes/Mascotas/ListadoMascotas';
+import ListarMascotasPage from './pages/Clientes/Mascotas/ListarMascotasPage';
 import NuevaMascota from './pages/Clientes/Mascotas/NuevaMascota';
 import EditarMascota from './pages/Clientes/Mascotas/EditarMascota';
 
@@ -47,22 +47,28 @@ function App() {
     <>
       <Routes>
 
-        {/* 1. Ruta Pública */}
+        {/* Rutas Públicas */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/nosotros" element={<NosotrosPage />} />
         <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/productos" element={<ProductosPage />} />
-        <Route path="/producto/:id" element={<DetalleProdPage />} />
-        <Route path="/login" element={<LoginPage />} />
+
+        {/* Detalle Producto */}
+        <Route path="/productos/:title" element={<DetalleProdPage />} />
+
+        {/* Carrito */}
         <Route path="/carrito" element={<CarritoPage />} />
-        <Route path="/compra" element={<ComporaPage />} />
+        <Route path="/compra" element={<CompraPage />} />
         <Route path="/pago-correcto" element={<PagoCorrectoPage />} />
         <Route path="/pago-error" element={<PagoErrorPage />} />
-        <Route path="/" element={<HomePage />} />
 
-        {/* 2. Rutas Protegidas */}
+        {/* Login */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* 🔐 Rutas Protegidas */}
         <Route element={<ProtectedRoute />}>
 
-          {/* Dashboard */}
+          {/* Dashboard Admin */}
           <Route path="/admin" element={<AdminHomePage />} />
 
           {/* CRUD Usuarios */}
@@ -81,13 +87,13 @@ function App() {
 
           {/* CRUD Mascotas */}
           <Route path="/admin/clientes/mascotas" element={<MainMascotas />} />
-          <Route path="/admin/clientes/mascotas/listar" element={<ListadoMascotas />} />
+          <Route path="/admin/clientes/mascotas/listar" element={<ListarMascotasPage />} />
           <Route path="/admin/clientes/mascotas/nueva" element={<NuevaMascota />} />
           <Route path="/admin/clientes/mascotas/editar/:id" element={<EditarMascota />} />
 
         </Route>
 
-        {/* Ruta 404 */}
+        {/* 404 Page */}
         <Route
           path="*"
           element={
@@ -98,7 +104,6 @@ function App() {
             </div>
           }
         />
-
       </Routes>
     </>
   );

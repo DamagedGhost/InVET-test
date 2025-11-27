@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MainTemplate from '../../src/templates/MainTemplate';
 import Button from '../../src/components/atoms/Button';
 import { useAuth } from '../../src/context/AuthContext'; // 1. Importar useAuth
+import Iridescence from '../components/Style/Iridescence';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -21,46 +22,62 @@ const LoginPage = () => {
   };
 
   return (
-    <MainTemplate>
-      <main className="container d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
-        <div className="col-md-6 col-lg-4">
-          <div className="card shadow">
-            <div className="card-body">
-              <h3 className="text-center mb-4">Iniciar Sesión</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Correo</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    placeholder="admin@mail.com" // Pista para probar
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    placeholder="123" // Pista para probar
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="d-grid">
-                  <Button label="Ingresar" variant="primary" type="submit" />
-                </div>
-              </form>
+    <div style={{ position: 'relative' }}>
+      <Iridescence
+        color={[0.5, 0.6, 0.8]}
+        mouseReact={true}
+        amplitude={0.1}
+        speed={1.0}
+        opacity={0.5}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          opacity: 0.5
+        }}
+      />
+      <MainTemplate>
+        <main className="container d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+          <div className="col-md-6 col-lg-4">
+            <div className="card shadow">
+              <div className="card-body">
+                <h3 className="text-center mb-4">Iniciar Sesión</h3>
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label htmlFor="email" className="form-label">Correo</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      id="email"
+                      placeholder="admin@mail.com" // Pista para probar
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="password" className="form-label">Contraseña</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="password"
+                      placeholder="123" // Pista para probar
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="d-grid">
+                    <Button label="Ingresar" variant="primary" type="submit" />
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </MainTemplate>
+        </main>
+      </MainTemplate>
+    </div>
   );
 };
 

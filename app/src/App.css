@@ -1,220 +1,151 @@
-/* main-styles.css */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-/* Colores personalizados */
+/* ======================================= */
+/* VARIABLES & ROOT */
+/* ======================================= */
 :root {
-    --yale-blue: #0d3b66;
-    --lemon-chiffon: #faf0ca;
-    --naples-yellow: #f4d35e;
-    --sandy-brown: #ee964b;
-    --tomato: #f95738;
+    --primary-color: #007bff;     /* Azul Médico */
+    --secondary-color: #6c757d;   /* Gris Neutro */
+    --success-color: #28a745;
+    --background-light: #f4f6f9;  /* Gris muy suave para fondo general */
+    --sidebar-bg: #2c3e50;        /* Azul oscuro para Admin */
+    --text-dark: #343a40;
 }
-
-/* ======================================= */
-/* ESTILOS GENERALES (PÚBLICO Y ADMIN)     */
-/* ======================================= */
 
 body {
-    background: #ffc9c9;
-    background: linear-gradient(90deg,
-        rgba(255, 201, 201, 1) 0%,
-        rgba(255, 217, 251, 1) 28%,
-        rgba(237, 204, 255, 1) 62%,
-        rgba(210, 250, 245, 1) 92%);
+  background: linear-gradient(300deg,#7a1dfbaf,#14f588af);
+  background-size: 120% 120%;
+  animation: gradient-animation 20s ease infinite;
 }
 
-/* Estilos de fuente consolidados */
-h1, .h1, h2, .h2, p {
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* body {
+    background-color: var(--background-light); /* Fondo plano y limpio 
     font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-}
+    color: var(--text-dark);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+} */
 
-h1, .h1 {
-    font-weight: 500;
-}
-
-/* Estilos para <option> */
-option {
-    transition: background-color 0.15s ease, color 0.15s ease;
-    cursor: pointer;
-    padding: 4px 8px;
-}
-
-option:hover,
-option:focus,
-option:checked {
-    background-color: #2c3e50;
-    color: #ecf0f1;
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
 }
 
 /* ======================================= */
-/* ESTILOS SITIO PÚBLICO                   */
+/* SITIO PÚBLICO */
 /* ======================================= */
 
 .navbar-custom {
-    background-color: var(--yale-blue) !important;
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Este #header es para el sitio PÚBLICO */
-#header {
-    background-color: var(--yale-blue);
-    color: white;
+.card {
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.product-card-img-top {
-    width: 140px;
-    height: 200px;   
-    object-fit: cover;
+/* Efecto hover suave en tarjetas de producto */
+.product-card:hover, .card.shadow-sm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
 }
 
-.product-card {
-    max-width: 250px; 
-    margin: auto;  
+/* Links */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+a:hover {
+    color: var(--primary-color);
+}
+
+/* Footer */
+.custom-footer {
+    background-color: #e9ecef;
+    color: var(--text-dark);
+    margin-top: auto;
 }
 
 /* ======================================= */
-/* ESTILOS PANEL DE ADMINISTRACIÓN         */
+/* ADMIN PANEL LAYOUT */
 /* ======================================= */
-
-/* --- Layout Fijo del Admin --- */
 
 #sidebar {
-    background-color: #34495e;
-    color: white;
-    padding: 10px;
-    height: 100vh;
+    background-color: var(--sidebar-bg);
+    color: #ecf0f1;
     position: fixed;
-    width: 200px; /* Ancho del Sidebar */
+    width: 250px; /* Un poco más ancho para legibilidad */
     top: 0;
     left: 0;
-    border-style: solid;
-    border-width: 0 1px 0 0;
-    border-color: #ecf0f1;
+    z-index: 1000;
+    transition: all 0.3s;
 }
 
-/* Este #header es para el ADMIN (sobrescribe al público) */
 #header {
-    background-color: #34495e;
-    color: white;
-    padding: 10px 20px;
+    /* Header Admin */
     position: fixed;
-    width: calc(100% - 200px); /* Ancho 100% MENOS el sidebar */
+    width: calc(100% - 250px);
+    left: 250px;
     top: 0;
-    left: 200px; /* Inicia JUSTO donde termina el sidebar */
-    z-index: 1000;
     height: 60px;
+    z-index: 999;
+    padding: 0 2rem;
 }
 
 #main-content {
-    /* LA CORRECCIÓN ESTÁ AQUÍ */
-    margin-left: 200px; /* Debe ser IGUAL al width de #sidebar */
-    margin-top: 60px; /* Debe ser IGUAL al height de #header */
-    
-    padding: 20px;
-    min-height: calc(100vh - 60px);
+    margin-left: 250px; /* Debe coincidir con sidebar width */
+    margin-top: 60px;   /* Debe coincidir con header height */
+    padding: 2rem;
+    min-height: 100vh;
 }
 
-/* --- Estilos para el NUEVO NavbarVerticalAdmin.js --- */
-/* (Esto reemplaza las reglas #li y #li:hover) */
-
+/* Admin Nav Links */
 #sidebar .nav-link {
-    transition: background-color 0.2s ease, color 0.2s ease;
-    border-radius: 4px;
+    color: rgba(255,255,255,0.8);
+    transition: 0.2s;
+}
+#sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255,255,255,0.1);
+}
+#sidebar .nav-link i {
+    font-size: 1.1rem;
 }
 
-#sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #ecf0f1;
+/* Tablas Admin */
+.table-responsive {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.table thead th {
+    background-color: #e9ecef;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+}
+
+/* ======================================= */
+/* UTILS */
+/* ======================================= */
+.cursor-pointer {
     cursor: pointer;
 }
 
-/* --- Otros estilos del Admin --- */
-
-#grafico-1 {
-    max-width:700px;
-    height:400px;
-}
-
-#dataTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-family: "Montserrat", sans-serif;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-#diseño-grafico {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-#nuevo-usuario, #modificar-usuario {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: auto;
-}
-
-/* ======================================= */
-/* ESTILOS DE ANIMACIÓN PÁGINA DE PERFIL   */
-/* ======================================= */
-
-/* Definición de la animación (Fade In y Slide Up) */
-@keyframes fadeInSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Clase para la primera tarjeta (Avatar) */
-.profile-card-animation {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s ease-out forwards;
-}
-
-/* Clase para las tarjetas de detalles (Formulario) */
-.profile-details-animation {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.2s ease-out forwards; /* 0.2s de retraso */
-}
-
-/* animaciones con retraso */
-.profile-card-animation-1 {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.1s ease-out forwards;
-}
-
-.profile-card-animation-2 {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.2s ease-out forwards;
-}
-
-.profile-card-animation-3 {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.3s ease-out forwards;
-}
-.profile-card-animation-4 {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.4s ease-out forwards;
-}
-
-.profile-card-animation-5 {
-  opacity: 0; /* Inicia invisible */
-  animation: fadeInSlideUp 0.4s 0.5s ease-out forwards;
+.iridescence-container {
+  width: 100%;
+  height: 100%;
 }

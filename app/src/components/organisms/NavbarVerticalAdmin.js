@@ -1,76 +1,68 @@
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { useAuth } from '../../context/AuthContext'; // 1. Importar useAuth
+import { useAuth } from '../../context/AuthContext';
 
 const NavbarVerticalAdmin = () => {
-    const { user, logout } = useAuth(); // 2. Obtener usuario y función logout
+    const { user, logout } = useAuth();
     return (
         <div>
             {/* --- SIDEBAR --- */}
             <aside className="d-flex flex-column justify-content-between vh-100" id="sidebar">
                 
-                {/* Sección Superior: Logo y Menú */}
+                {/* Logo e Identidad */}
                 <div>
-                    <div className="d-flex align-items-center gap-2 p-2">
-                        <i className="bi bi-vinyl-fill fs-4"></i>
-                        <span className="fs-5">InVET</span>
+                    <div className="d-flex align-items-center gap-2 p-3 border-bottom border-secondary">
+                        <i className="bi bi-hospital-fill fs-4 text-info"></i>
+                        <span className="fs-4 fw-bold tracking-wide">InVET Admin</span>
                     </div>
 
-                    <div className="border-top my-3 pt-3" id="admin-nav-top">
-                        <ul className="nav flex-column mb-3">
-
+                    <div className="mt-3 px-2" id="admin-nav-top">
+                        <ul className="nav flex-column gap-1">
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin">
-                                    <i className="bi bi-grid-fill"></i>
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded hover-bg-secondary" to="/Admin">
+                                    <i className="bi bi-speedometer2"></i>
                                     Dashboard
                                 </Link>
                             </li>
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Boleta">
-                                    <i className="bi bi-receipt"></i>
-                                    Órdenes
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Boleta">
+                                    <i className="bi bi-receipt-cutoff"></i>
+                                    Ventas
                                 </Link>
                             </li>
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Inventario">
-                                    <i className="bi bi-box-seam-fill"></i>
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Inventario">
+                                    <i className="bi bi-capsule"></i>
                                     Inventario
                                 </Link>
                             </li>
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Reporte">
-                                    <i className="bi bi-bar-chart-fill"></i>
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Reporte">
+                                    <i className="bi bi-file-earmark-bar-graph"></i>
                                     Reportes
                                 </Link>
                             </li>
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Usuarios">
-                                    <i className="bi bi-people-fill"></i>
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Usuarios">
+                                    <i className="bi bi-people"></i>
                                     Usuarios
                                 </Link>
                             </li>
 
-                            {/* ====================================================== */}
-                            {/* === CAMBIO NUEVO: CLIENTES → CRUD MASCOTAS         === */}
-                            {/* ====================================================== */}
                             <li className="nav-item">
-                                <Link 
-                                  className="nav-link text-white d-flex align-items-center gap-2" 
-                                  to="/admin/clientes/mascotas"
-                                >
-                                    <i className="bi bi-person-standing"></i>
-                                    Clientes
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/admin/clientes/mascotas">
+                                    <i className="bi bi-heart-pulse"></i>
+                                    Pacientes (Mascotas)
                                 </Link>
                             </li>
-                            {/* ====================================================== */}
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Categorias">
-                                    <i className="bi bi-tags-fill"></i>
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Categorias">
+                                    <i className="bi bi-tags"></i>
                                     Categorías
                                 </Link>
                             </li>
@@ -78,48 +70,27 @@ const NavbarVerticalAdmin = () => {
                     </div>
                 </div>
 
-                {/* Sección Inferior */}
-                <div>
-                    <div className="border-top my-3 pt-3" id="admin-nav-bottom">
-                        <ul className="nav flex-column">
-                            <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="#">
-                                    <i className="bi bi-gear-fill"></i>
-                                    Configuración
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-2" to="/Admin/Perfil">
-                                    <i className="bi bi-person-fill"></i>
-                                    Perfil
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="d-flex flex-column p-3 border-top border-secondary" id="admin-user">
-                        <div className="d-flex align-items-center">
-                            <i className="bi bi-person-circle fs-3 me-2"></i>
-                            <div className="d-flex flex-column">
-                                <span className="fw-bold">{user ? user.nombre : 'Usuario'}</span>
-                                <small className="text-white-50">{user ? user.rol : 'Admin'}</small>
+                {/* Footer Sidebar */}
+                <div className="p-3 bg-dark bg-opacity-25">
+                     <div className="d-flex align-items-center mb-3">
+                            <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style={{width: '40px', height: '40px'}}>
+                                <span className="fw-bold">{user ? user.nombre.charAt(0) : 'A'}</span>
                             </div>
-                        </div>
-                        <button 
-                            className="btn btn-sm btn-outline-danger mt-3" 
-                            onClick={logout}
-                        >
-                            <i className="bi bi-box-arrow-right me-1"></i>
-                            Cerrar Sesión
-                        </button>
+                            <div className="d-flex flex-column overflow-hidden">
+                                <span className="fw-bold text-truncate">{user ? user.nombre : 'Admin'}</span>
+                                <small className="text-white-50" style={{fontSize: '0.75rem'}}>{user ? user.rol : 'Staff'}</small>
+                            </div>
                     </div>
+                    <button className="btn btn-outline-danger w-100 btn-sm d-flex align-items-center justify-content-center gap-2" onClick={logout}>
+                        <i className="bi bi-box-arrow-right"></i> Salir
+                    </button>
                 </div>
             </aside>
 
-            <header id="header" className="d-flex justify-content-between align-items-center">
-                <h1 className="h4 m-0">Panel de Administración</h1>
-                <div>
-                    <i className="bi bi-bell-fill fs-5"></i>
+            <header id="header" className="d-flex justify-content-between align-items-center shadow-sm bg-white text-dark">
+                <h1 className="h5 m-0 fw-semibold text-secondary">Panel de Control</h1>
+                <div className="d-flex align-items-center gap-3">
+                    <i className="bi bi-bell fs-5 text-secondary cursor-pointer"></i>
                 </div>
             </header>
         </div>

@@ -10,6 +10,9 @@ const CompraPage = () => {
   const { user } = useAuth(); 
   const { addBoleta } = useBoletaViewModel(); 
 
+  // Estado para bloquear el botón mientras se procesa
+  const [isProcessing, setIsProcessing] = useState(false);
+
   // --- CARRITO ---
   const [cart, setCart] = useState([]);
   useEffect(() => {
@@ -25,7 +28,6 @@ const CompraPage = () => {
     departamento: '', region: 'Región Metropolitana de Santiago', comuna: 'Cerrillos', indicaciones: '',
   });
 
-  // Autocompletar si hay usuario
   useEffect(() => {
     if (user) {
       setForm(prevForm => ({
@@ -49,10 +51,11 @@ const CompraPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // CORRECCIÓN: Buscamos id O _id para ser compatibles con Mongo directo
+    // Evitar doble envío
+    if (isProcessing) return;
+
     const userId = user ? (user.id || user._id) : null;
 
-    // Validación robusta
     if (!userId) {
         alert("Debes iniciar sesión para completar la compra.");
         navigate('/login');
@@ -64,13 +67,21 @@ const CompraPage = () => {
         return;
     }
 
-    // Construimos el objeto Boleta usando el userId resuelto
+    // Validación Precio Negativo (VET-3) en Frontend
+    if (total < 0) {
+        alert("Error: El total de la compra no puede ser negativo. Revisa tu carrito.");
+        return;
+    }
+
+    // Activamos estado de carga
+    setIsProcessing(true);
+
     const nuevaBoleta = {
         total: total,
         usuario: userId, 
         estado: 'Emitida',
         items: cart.map(prod => ({
-            productoId: prod.id, // Aquí asumimos que los productos ya tienen 'id' mapeado en el ViewModel
+            productoId: prod.id, 
             titulo: prod.title,
             precio: prod.price,
             cantidad: prod.cantidad
@@ -83,7 +94,11 @@ const CompraPage = () => {
         navigate('/pago-correcto');
     } catch (error) {
         console.error(error);
+        alert("Hubo un error al procesar tu compra: " + error.message);
         navigate('/pago-error');
+    } finally {
+        // Desactivamos carga pase lo que pase
+        setIsProcessing(false);
     }
   };
 
@@ -92,7 +107,14 @@ const CompraPage = () => {
       <main className="container my-5">
         <h2 className="text-center mb-4 fw-bold">Carrito de compra</h2>
 
-        {/* Carrito */}
+        {/* Feedback visual si está procesando */}
+        {isProcessing && (
+            <div className="alert alert-info text-center">
+                <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                Procesando tu compra, por favor espera...
+            </div>
+        )}
+
         <div className="card shadow-sm p-4 mb-4">
           <h5 className="fw-semibold mb-3">Tus Productos</h5>
           {cart.length > 0 ? (
@@ -111,7 +133,9 @@ const CompraPage = () => {
                     {cart.map((item) => (
                       <tr key={item.title}>
                         <td>{item.title}</td>
-                        <td>${item.price.toLocaleString()}</td>
+                        <td className={item.price < 0 ? "text-danger fw-bold" : ""}>
+                            ${item.price.toLocaleString()}
+                        </td>
                         <td>{item.cantidad}</td>
                         <td>${(item.price * item.cantidad).toLocaleString()}</td>
                       </tr>
@@ -121,7 +145,7 @@ const CompraPage = () => {
               </div>
               <div className="text-end mt-3">
                 <h5>
-                  <span className="fw-bold text-success">
+                  <span className={`fw-bold ${total < 0 ? 'text-danger' : 'text-success'}`}>
                     Total a pagar: ${total.toLocaleString()}
                   </span>
                 </h5>
@@ -132,35 +156,36 @@ const CompraPage = () => {
           )}
         </div>
 
-        {/* Información del cliente */}
         <div className="card shadow-sm p-4 mb-4">
           <h5 className="fw-semibold mb-3">Información del cliente</h5>
+          {/* Deshabilitamos el formulario mientras procesa */}
+          <fieldset disabled={isProcessing}>
           <form onSubmit={handleSubmit}>
             <div className="row mb-3">
               <div className="col-md-6">
                 <label className="form-label">Nombre*</label>
-                <input type="text" name="nombre" className="form-control" placeholder="Ej: Juan" value={form.nombre} onChange={handleChange} required />
+                <input type="text" name="nombre" className="form-control" value={form.nombre} onChange={handleChange} required />
               </div>
               <div className="col-md-6">
                 <label className="form-label">Apellidos*</label>
-                <input type="text" name="apellido" className="form-control" placeholder="Ej: Pérez Soto" value={form.apellido} onChange={handleChange} required />
+                <input type="text" name="apellido" className="form-control" value={form.apellido} onChange={handleChange} required />
               </div>
             </div>
 
             <div className="mb-3">
               <label className="form-label">Correo*</label>
-              <input type="email" name="correo" className="form-control" placeholder="Ej: juanperez@gmail.com" value={form.correo} onChange={handleChange} required />
+              <input type="email" name="correo" className="form-control" value={form.correo} onChange={handleChange} required />
             </div>
 
             <h5 className="fw-semibold mb-3 mt-4">Dirección de entrega</h5>
             <div className="row mb-3">
               <div className="col-md-8">
                 <label className="form-label">Calle*</label>
-                <input type="text" name="calle" className="form-control" placeholder="Ej: Calle Falsa 123" value={form.calle} onChange={handleChange} required />
+                <input type="text" name="calle" className="form-control" value={form.calle} onChange={handleChange} required />
               </div>
               <div className="col-md-4">
                 <label className="form-label">Departamento</label>
-                <input type="text" name="departamento" className="form-control" placeholder="Ej: 603" value={form.departamento} onChange={handleChange} />
+                <input type="text" name="departamento" className="form-control" value={form.departamento} onChange={handleChange} />
               </div>
             </div>
 
@@ -171,7 +196,7 @@ const CompraPage = () => {
               </div>
               <div className="col-md-6">
                 <label className="form-label">Comuna*</label>
-                <input type="text" name="comuna" className="form-control" placeholder="Ej: Cerrillos" value={form.comuna} onChange={handleChange} required />
+                <input type="text" name="comuna" className="form-control" value={form.comuna} onChange={handleChange} required />
               </div>
             </div>
 
@@ -181,13 +206,24 @@ const CompraPage = () => {
             </div>
 
             <div className="d-grid">
-              <Button
-                label={`Pagar ahora $${total.toLocaleString()}`}
-                type="submit"
-                variant="success"
-              />
+              {/* Botón dinámico */}
+              <button 
+                type="submit" 
+                className="btn btn-success btn-lg"
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                    <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Procesando...
+                    </>
+                ) : (
+                    `Pagar ahora $${total.toLocaleString()}`
+                )}
+              </button>
             </div>
           </form>
+          </fieldset>
         </div>
       </main>
     </MainTemplate>

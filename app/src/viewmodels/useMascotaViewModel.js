@@ -1,10 +1,10 @@
 // src/viewmodels/useMascotaViewModel.js
 import { useState, useCallback } from "react";
 
-// 👉 Usa la misma IP que ya usas en AuthContext
-const API_BASE_URL = "http://98.91.150.2:5000/api/clientes";
+// 👉 API REAL donde están los usuarios
+const API_BASE_URL = "http://98.91.150.2:5000/api/usuarios";
 
-const useMascotaViewModel = (clienteId) => {
+const useMascotaViewModel = (rutCliente) => {
   const [mascotas, setMascotas] = useState([]);
   const [mascota, setMascota] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -14,44 +14,42 @@ const useMascotaViewModel = (clienteId) => {
   // Obtener todas las mascotas
   // ==============================
   const fetchMascotas = useCallback(async () => {
-    if (!clienteId) return;
+    if (!rutCliente) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE_URL}/${clienteId}/mascotas`);
+      const res = await fetch(`${API_BASE_URL}/${rutCliente}/mascotas`);
 
       if (!res.ok) {
         throw new Error(`Error al obtener mascotas (status ${res.status})`);
       }
 
       const data = await res.json();
-
-      // Asegurarse de que siempre sea un arreglo
       setMascotas(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("[FE-MASCOTAS] Error en fetchMascotas:", err);
       setError(err.message);
-      setMascotas([]); // Evitamos undefined
+      setMascotas([]);
     } finally {
       setLoading(false);
     }
-  }, [clienteId]);
+  }, [rutCliente]);
 
   // ==============================
   // Obtener una mascota por ID
   // ==============================
   const fetchMascotaById = useCallback(
     async (idMascota) => {
-      if (!clienteId || !idMascota) return;
+      if (!rutCliente || !idMascota) return;
 
       try {
         setLoading(true);
         setError(null);
 
         const res = await fetch(
-          `${API_BASE_URL}/${clienteId}/mascotas/${idMascota}`
+          `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`
         );
 
         if (!res.ok) {
@@ -71,54 +69,33 @@ const useMascotaViewModel = (clienteId) => {
         setLoading(false);
       }
     },
-    [clienteId]
+    [rutCliente]
   );
 
   // ==============================
   // Crear mascota
   // ==============================
-  const createMascota = async (nuevaMascota) => {
-    if (!clienteId) return null;
+  const createMascota = async (rut, nuevaMascota) => {
+  const res = await fetch(`${API_BASE_URL}/${rut}/mascotas`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(nuevaMascota),
+  });
+};
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      const res = await fetch(`${API_BASE_URL}/${clienteId}/mascotas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaMascota),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Error al crear mascota (status ${res.status})`);
-      }
-
-      const creada = await res.json();
-      // Actualizamos la lista en memoria
-      setMascotas((prev) => [...prev, creada]);
-      return creada;
-    } catch (err) {
-      console.error("[FE-MASCOTAS] Error en createMascota:", err);
-      setError(err.message);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ==============================
   // Actualizar mascota
   // ==============================
   const updateMascota = async (idMascota, mascotaEditada) => {
-    if (!clienteId || !idMascota) return null;
+    if (!rutCliente || !idMascota) return null;
 
     try {
       setLoading(true);
       setError(null);
 
       const res = await fetch(
-        `${API_BASE_URL}/${clienteId}/mascotas/${idMascota}`,
+        `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -150,14 +127,14 @@ const useMascotaViewModel = (clienteId) => {
   // Eliminar mascota
   // ==============================
   const deleteMascota = async (idMascota) => {
-    if (!clienteId || !idMascota) return;
+    if (!rutCliente || !idMascota) return;
 
     try {
       setLoading(true);
       setError(null);
 
       const res = await fetch(
-        `${API_BASE_URL}/${clienteId}/mascotas/${idMascota}`,
+        `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`,
         {
           method: "DELETE",
         }
