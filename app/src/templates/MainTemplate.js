@@ -3,9 +3,11 @@ import Footer from '../components/organisms/Footer';
 
 const MainTemplate = ({ children }) => (
   <>
-    <header><Navbar /></header>
-    <main>{children}</main>
+    <Navbar />
+    {/* El main tomará el espacio restante gracias al CSS flex:1 en App.css */}
+    {children}
     <Footer />
   </>
 );
+
 export default MainTemplate;

@@ -87,10 +87,18 @@ const NavbarVerticalAdmin = () => {
                 </div>
             </aside>
 
-            <header id="header" className="d-flex justify-content-between align-items-center shadow-sm bg-white text-dark">
-                <h1 className="h5 m-0 fw-semibold text-secondary">Panel de Control</h1>
+            {/* Header: use the same sidebar background variable and text color */}
+            <header
+                id="header"
+                className="d-flex justify-content-between align-items-center shadow-sm px-4 py-2"
+                style={{
+                    backgroundColor: 'var(--sidebar-bg)',
+                    color: 'var(--sidebar-text, #fff)'
+                }}
+            >
+                <h1 className="h5 m-0 fw-semibold" style={{ color: 'inherit' }}>Panel de Control</h1>
                 <div className="d-flex align-items-center gap-3">
-                    <i className="bi bi-bell fs-5 text-secondary cursor-pointer"></i>
+                    <i className="bi bi-bell fs-5 cursor-pointer" style={{ color: 'inherit' }}></i>
                 </div>
             </header>
         </div>
