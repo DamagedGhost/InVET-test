@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 //TODO: ESTA ES UNA URL DE PRUEBA, SE CONECTA A UN SERVIDOR EXTERNO, CON EL PROPÓSITO DE PROBAR LA APLICACIÓN EN UN ENTORNO REAL, DEBE SER LA URL DE NUESTRO BACKEND
 // URL base de nuestro backend
 //const API_BASE_URL = 'http://98.91.150.2:5000/api'; 
-const API_BASE_URL = 'http://localhost:3000'; // LAN 
+const API_BASE_URL = 'http://98.91.150.2:5000/api';
 
 const AUTH_KEY = 'authUser'; 
 

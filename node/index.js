@@ -8,6 +8,12 @@ const connectDB = require('./db'); // Importa la función de conexión a la DB
 const productoRoutes = require('./routes/productos');
 const userRoutes = require('./routes/usuarios');
 
+// ======================================================
+// === NUEVO: Importación de rutas de Mascotas =========
+// ======================================================
+const mascotasRoutes = require('./routes/mascotas');
+// ======================================================
+
 // ---  Inicialización y Conexión a DB ---
 connectDB();
 
@@ -15,7 +21,12 @@ const app = express();
 
 // ---  Middlewares ---
 // CORS: Permite que React (que correrá en un puerto diferente) pueda hacer peticiones
-app.use(cors()); 
+app.use(cors({
+    origin: "*",
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization"
+}));
+
 // Body Parser: Permite a Express leer JSON en el body de las peticiones (POST, PUT)
 app.use(express.json());
 
@@ -31,6 +42,12 @@ app.use('/api/productos', productoRoutes);
 
 // Las rutas de usuarios y login se manejarán con el prefijo /api/usuarios
 app.use('/api/usuarios', userRoutes);
+
+// ======================================================
+// === NUEVO: Rutas para CRUD de Mascotas ===============
+// ======================================================
+app.use('/api/clientes', mascotasRoutes);
+// ======================================================
 
 // Ruta de prueba
 app.get('/', (req, res) => {
