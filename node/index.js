@@ -1,60 +1,42 @@
 // src/mi-api-productos/index.js
-require('dotenv').config(); // Carga las variables de entorno desde .env
+require('dotenv').config(); 
 const express = require('express');
-const cors = require('cors'); // Para permitir peticiones desde React (puerto 3000)
-const connectDB = require('./db'); // Importa la función de conexión a la DB
+const cors = require('cors'); 
+const connectDB = require('./db'); 
 
 // Importación de rutas
 const productoRoutes = require('./routes/productos');
 const userRoutes = require('./routes/usuarios');
-
-// ======================================================
-// === NUEVO: Importación de rutas de Mascotas =========
-// ======================================================
 const mascotasRoutes = require('./routes/mascotas');
-// ======================================================
+const boletaRoutes = require('./routes/Boletas'); // <--- 1. IMPORTAR RUTAS DE BOLETAS
 
-// ---  Inicialización y Conexión a DB ---
 connectDB();
 
 const app = express();
 
-// ---  Middlewares ---
-// CORS: Permite que React (que correrá en un puerto diferente) pueda hacer peticiones
 app.use(cors({
     origin: "*",
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type,Authorization"
 }));
 
-// Body Parser: Permite a Express leer JSON en el body de las peticiones (POST, PUT)
 app.use(express.json());
 
-// Middleware de Logging (Depuración Global)
 app.use((req, res, next) => {
     console.log(`[API] ${req.method} ${req.originalUrl}`);
     next();
 });
 
-// --- Definición de Rutas (Endpoints) ---
-// Las rutas de productos se manejarán con el prefijo /api/productos
+// --- Definición de Rutas ---
 app.use('/api/productos', productoRoutes);
-
-// Las rutas de usuarios y login se manejarán con el prefijo /api/usuarios
 app.use('/api/usuarios', userRoutes);
-
-// ======================================================
-// === NUEVO: Rutas para CRUD de Mascotas ===============
-// ======================================================
 app.use('/api/clientes', mascotasRoutes);
-// ======================================================
+app.use('/api/boletas', boletaRoutes); // <--- 2. USAR LA RUTA
 
-// Ruta de prueba
 app.get('/', (req, res) => {
     res.send('API REST de InVET activa y conectada a MongoDB.');
 });
 
-// --- Inicialización del Servidor ---
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
