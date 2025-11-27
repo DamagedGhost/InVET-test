@@ -18,64 +18,32 @@ const NuevaMascota = () => {
   });
 
   // =============================
-  // 🔹 FORMATEAR RUT CHILENO
+  // 🔹 SOLO FORMATEAR RUT (sin validar)
   // =============================
   const formatRut = (rut) => {
-    rut = rut.replace(/[^\dkK]/g, "").toUpperCase(); // limpiar todo menos numeros y K
-
+    rut = rut.replace(/[^\dkK]/g, "").toUpperCase();
     if (rut.length <= 1) return rut;
-
     let cuerpo = rut.slice(0, -1);
     let dv = rut.slice(-1);
-
-    // poner puntos cada 3
     cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
     return `${cuerpo}-${dv}`;
   };
 
-  // =============================
-  // 🔹 VALIDAR RUT REAL (Dígito verificador)
-  // =============================
-  const validarRut = (rut) => {
-    rut = rut.replace(/\./g, "").replace("-", "").toUpperCase();
-
-    if (rut.length < 2) return false;
-
-    const cuerpo = rut.slice(0, -1);
-    let dv = rut.slice(-1);
-
-    let suma = 0;
-    let multiplo = 2;
-
-    for (let i = cuerpo.length - 1; i >= 0; i--) {
-      suma += multiplo * parseInt(cuerpo[i]);
-      multiplo = multiplo < 7 ? multiplo + 1 : 2;
-    }
-
-    let dvEsperado = 11 - (suma % 11);
-    dvEsperado = dvEsperado === 11 ? "0" : dvEsperado === 10 ? "K" : dvEsperado.toString();
-
-    return dv === dvEsperado;
-  };
-
-  // =============================
-  // 🔹 Manejar cambios en inputs
-  // =============================
   const handleChange = (e) => {
     const { id, value } = e.target;
 
+    // Formatear RUT
     if (id === "rut") {
       const limpio = value.replace(/[^\dkK]/g, "").toUpperCase();
       return setFormData((prev) => ({ ...prev, rut: formatRut(limpio) }));
     }
 
-    // Validación de texto (sin números)
+    // Validación solo letras
     if (["nombre", "especie", "raza"].includes(id)) {
       if (/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/.test(value)) return;
     }
 
-    // Edad y peso — solo números positivos
+    // Sólo números positivos
     if (["edad", "peso"].includes(id)) {
       if (value < 0) return;
     }
@@ -83,20 +51,11 @@ const NuevaMascota = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // =============================
-  // 🔹 Enviar formulario
-  // =============================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar RUT completo
-    if (!validarRut(formData.rut)) {
-      alert("El RUT ingresado no es válido.");
-      return;
-    }
-
     await createMascota(
-      formData.rut.replace(/\./g, "").replace("-", ""), // rut limpio para backend
+      formData.rut.replace(/\./g, "").replace("-", ""),
       {
         nombre: formData.nombre.trim(),
         especie: formData.especie.trim(),
@@ -131,12 +90,12 @@ const NuevaMascota = () => {
                 <input
                   type="text"
                   id="rut"
-                  required
                   maxLength={12}
                   placeholder="11.111.111-1"
                   className="form-control"
                   value={formData.rut}
                   onChange={handleChange}
+                  required
                 />
               </div>
 

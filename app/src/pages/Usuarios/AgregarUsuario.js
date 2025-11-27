@@ -7,26 +7,54 @@ import Button from '../../components/atoms/Button';
 const AgregarUsuario = () => {
     const navigate = useNavigate();
     const { addUser } = useUserViewModel();
+
     const [formData, setFormData] = useState({
         rut: '',
         nombre: '',
         apellidos: '',
         correo: '',
         password: '',
-        rol: 'client', // Valor por defecto
+        rol: 'client',
         region: '',
         comuna: '',
         direccion: ''
     });
 
+    // =============================
+    // 🔹 SOLO FORMATEAR RUT (sin validar)
+    // =============================
+    const formatRut = (rut) => {
+        rut = rut.replace(/[^\dkK]/g, "").toUpperCase();
+        if (rut.length <= 1) return rut;
+        let cuerpo = rut.slice(0, -1);
+        let dv = rut.slice(-1);
+        cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return `${cuerpo}-${dv}`;
+    };
+
     const handleChange = (e) => {
         const { id, value } = e.target;
+
+        if (id === "rut") {
+            const limpio = value.replace(/[^\dkK]/g, "").toUpperCase();
+            return setFormData((prev) => ({ ...prev, rut: formatRut(limpio) }));
+        }
+
+        if (["nombre", "apellidos", "region", "comuna"].includes(id)) {
+            if (/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/.test(value)) return;
+        }
+
         setFormData(prev => ({ ...prev, [id]: value }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        addUser(formData);
+
+        addUser({
+            ...formData,
+            rut: formData.rut.replace(/\./g, "").replace("-", "")
+        });
+
         alert('Usuario agregado exitosamente');
         navigate('/Admin/Usuarios/ListarUsuarios');
     };
@@ -35,68 +63,141 @@ const AgregarUsuario = () => {
         <AdminTemplate>
             <section id="main-content" className="flex-grow-1">
                 <div className="container-fluid py-4">
+                    {/* BREADCRUMB */}
                     <nav aria-label="breadcrumb" className="mb-3">
                         <ol className="breadcrumb mb-0">
-                        <li className="breadcrumb-item"><a href="/Admin">Administración</a></li>
-                        <li className="breadcrumb-item"><a href="/Admin/Usuarios">Usuarios</a></li>
-                        <li className="breadcrumb-item active" aria-current="page">Nuevo Usuario</li>
+                            <li className="breadcrumb-item"><a href="/Admin">Administración</a></li>
+                            <li className="breadcrumb-item"><a href="/Admin/Usuarios">Usuarios</a></li>
+                            <li className="breadcrumb-item active">Nuevo Usuario</li>
                         </ol>
                     </nav>
+
                     <div className="bg-white p-4 shadow-sm rounded">
                         <h1 className="h4">Nuevo Usuario</h1>
-                        <form id="registrationForm" onSubmit={handleSubmit}>
+
+                        <form onSubmit={handleSubmit}>
+
                             {/* RUT */}
                             <div className="mb-3">
                                 <label htmlFor="rut">RUT *</label>
-                                <input type="text" id="rut" value={formData.rut} onChange={handleChange} required className="form-control" />
+                                <input
+                                    type="text"
+                                    id="rut"
+                                    maxLength={12}
+                                    className="form-control"
+                                    placeholder="11.111.111-1"
+                                    required
+                                    value={formData.rut}
+                                    onChange={handleChange}
+                                />
                             </div>
+
                             {/* Nombre */}
                             <div className="mb-3">
                                 <label htmlFor="nombre">Nombre *</label>
-                                <input type="text" id="nombre" value={formData.nombre} onChange={handleChange} required className="form-control" />
+                                <input
+                                    type="text"
+                                    id="nombre"
+                                    className="form-control"
+                                    required
+                                    value={formData.nombre}
+                                    onChange={handleChange}
+                                />
                             </div>
+
                             {/* Apellidos */}
                             <div className="mb-3">
                                 <label htmlFor="apellidos">Apellidos *</label>
-                                <input type="text" id="apellidos" value={formData.apellidos} onChange={handleChange} required className="form-control" />
+                                <input
+                                    type="text"
+                                    id="apellidos"
+                                    className="form-control"
+                                    required
+                                    value={formData.apellidos}
+                                    onChange={handleChange}
+                                />
                             </div>
+
                             {/* Correo */}
                             <div className="mb-3">
                                 <label htmlFor="correo">Correo *</label>
-                                <input type="email" id="correo" value={formData.correo} onChange={handleChange} required className="form-control" />
+                                <input
+                                    type="email"
+                                    id="correo"
+                                    className="form-control"
+                                    required
+                                    value={formData.correo}
+                                    onChange={handleChange}
+                                />
                             </div>
-                            {/* Contraseña */}
+
+                            {/* Password */}
                             <div className="mb-3">
                                 <label htmlFor="password">Contraseña *</label>
-                                <input type="password" id="password" value={formData.password} onChange={handleChange} required className="form-control" />
+                                <input
+                                    type="password"
+                                    id="password"
+                                    className="form-control"
+                                    required
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                />
                             </div>
-                            {/* Tipo de Usuario */}
+
+                            {/* Rol */}
                             <div className="mb-3">
-                                <label htmlFor="rol">Tipo de Usuario: *</label>
-                                <select id="rol" value={formData.rol} onChange={handleChange} className="form-select" required>
+                                <label htmlFor="rol">Tipo de Usuario *</label>
+                                <select
+                                    id="rol"
+                                    className="form-select"
+                                    value={formData.rol}
+                                    onChange={handleChange}
+                                >
                                     <option value="client">Cliente</option>
                                     <option value="admin">Administrador</option>
                                 </select>
                             </div>
-                            {/* Región y Comuna (lado a lado) */}
+
+                            {/* Región + Comuna */}
                             <div className="mb-3 row g-3">
                                 <div className="col-md-6">
-                                    <label htmlFor="region" className="form-label">Región</label>
-                                    <input type="text" id="region" value={formData.region} onChange={handleChange} className="form-control" />
+                                    <label htmlFor="region">Región *</label>
+                                    <input
+                                        type="text"
+                                        id="region"
+                                        className="form-control"
+                                        value={formData.region}
+                                        onChange={handleChange}
+                                    />
                                 </div>
+
                                 <div className="col-md-6">
-                                    <label htmlFor="comuna" className="form-label">Comuna</label>
-                                    <input type="text" id="comuna" value={formData.comuna} onChange={handleChange} className="form-control" />
+                                    <label htmlFor="comuna">Comuna *</label>
+                                    <input
+                                        type="text"
+                                        id="comuna"
+                                        className="form-control"
+                                        value={formData.comuna}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                             </div>
+
                             {/* Dirección */}
                             <div className="mb-3">
-                                <label htmlFor="direccion">Dirección: *</label>
-                                <input type="text" id="direccion" value={formData.direccion} onChange={handleChange} required className="form-control" />
+                                <label htmlFor="direccion">Dirección *</label>
+                                <input
+                                    type="text"
+                                    id="direccion"
+                                    className="form-control"
+                                    required
+                                    value={formData.direccion}
+                                    onChange={handleChange}
+                                />
                             </div>
-                            {/* Botón */}
+
                             <div className="d-flex gap-2 mt-3 p-3 border-top">
-                                <Button label={'Registrar usuario'} type="submit" variant="primary" />
+                                <Button label="Registrar usuario" type="submit" variant="primary" />
                             </div>
                         </form>
                     </div>
