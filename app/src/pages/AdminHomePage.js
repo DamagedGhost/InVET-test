@@ -145,7 +145,7 @@ const AdminHomePage = () => {
                             <a href="/Admin/Usuarios/AgregarUsuario" className="btn btn-outline-success btn-sm w-100">
                                 <i className="bi bi-person-plus me-2"></i>Nuevo Usuario
                             </a>
-                            <a href="/Admin/Boleta" className="btn btn-outline-dark btn-sm w-100">
+                            <a href="/Admin/Boletas" className="btn btn-outline-dark btn-sm w-100">
                                 <i className="bi bi-search me-2"></i>Ver Ventas
                             </a>
                         </div>

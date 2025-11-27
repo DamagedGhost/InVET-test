@@ -20,42 +20,58 @@ const AgregarUsuario = () => {
         direccion: ''
     });
 
-    // =============================
-    // 🔹 SOLO FORMATEAR RUT (sin validar)
-    // =============================
+    // ===========================
+    // 🔹 FORMATEAR RUT (solo formato)
+    // ===========================
     const formatRut = (rut) => {
         rut = rut.replace(/[^\dkK]/g, "").toUpperCase();
         if (rut.length <= 1) return rut;
+
         let cuerpo = rut.slice(0, -1);
         let dv = rut.slice(-1);
+
         cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
         return `${cuerpo}-${dv}`;
     };
 
+    // ===========================
+    // 🔹 Manejador de inputs
+    // ===========================
     const handleChange = (e) => {
         const { id, value } = e.target;
 
         if (id === "rut") {
             const limpio = value.replace(/[^\dkK]/g, "").toUpperCase();
-            return setFormData((prev) => ({ ...prev, rut: formatRut(limpio) }));
+            return setFormData((prev) => ({
+                ...prev,
+                rut: formatRut(limpio)
+            }));
         }
 
+        // Nombres sin números
         if (["nombre", "apellidos", "region", "comuna"].includes(id)) {
             if (/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/.test(value)) return;
         }
 
-        setFormData(prev => ({ ...prev, [id]: value }));
+        setFormData((prev) => ({
+            ...prev,
+            [id]: value
+        }));
     };
 
-    const handleSubmit = (e) => {
+    // ===========================
+    // 🔹 Registrar usuario
+    // ===========================
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        addUser({
+        await addUser({
             ...formData,
-            rut: formData.rut.replace(/\./g, "").replace("-", "")
+            rut: formData.rut // rut formateado
         });
 
-        alert('Usuario agregado exitosamente');
+        alert("Usuario agregado exitosamente");
         navigate('/Admin/Usuarios/ListarUsuarios');
     };
 
@@ -63,7 +79,7 @@ const AgregarUsuario = () => {
         <AdminTemplate>
             <section id="main-content" className="flex-grow-1">
                 <div className="container-fluid py-4">
-                    {/* BREADCRUMB */}
+
                     <nav aria-label="breadcrumb" className="mb-3">
                         <ol className="breadcrumb mb-0">
                             <li className="breadcrumb-item"><a href="/Admin">Administración</a></li>
@@ -77,74 +93,68 @@ const AgregarUsuario = () => {
 
                         <form onSubmit={handleSubmit}>
 
-                            {/* RUT */}
                             <div className="mb-3">
                                 <label htmlFor="rut">RUT *</label>
                                 <input
                                     type="text"
                                     id="rut"
                                     maxLength={12}
-                                    className="form-control"
                                     placeholder="11.111.111-1"
-                                    required
+                                    className="form-control"
                                     value={formData.rut}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            {/* Nombre */}
                             <div className="mb-3">
                                 <label htmlFor="nombre">Nombre *</label>
                                 <input
                                     type="text"
                                     id="nombre"
                                     className="form-control"
-                                    required
                                     value={formData.nombre}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            {/* Apellidos */}
                             <div className="mb-3">
                                 <label htmlFor="apellidos">Apellidos *</label>
                                 <input
                                     type="text"
                                     id="apellidos"
                                     className="form-control"
-                                    required
                                     value={formData.apellidos}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            {/* Correo */}
                             <div className="mb-3">
                                 <label htmlFor="correo">Correo *</label>
                                 <input
                                     type="email"
                                     id="correo"
                                     className="form-control"
-                                    required
                                     value={formData.correo}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            {/* Password */}
                             <div className="mb-3">
                                 <label htmlFor="password">Contraseña *</label>
                                 <input
                                     type="password"
                                     id="password"
                                     className="form-control"
-                                    required
                                     value={formData.password}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            {/* Rol */}
                             <div className="mb-3">
                                 <label htmlFor="rol">Tipo de Usuario *</label>
                                 <select
@@ -152,16 +162,16 @@ const AgregarUsuario = () => {
                                     className="form-select"
                                     value={formData.rol}
                                     onChange={handleChange}
+                                    required
                                 >
                                     <option value="client">Cliente</option>
                                     <option value="admin">Administrador</option>
                                 </select>
                             </div>
 
-                            {/* Región + Comuna */}
-                            <div className="mb-3 row g-3">
+                            <div className="row g-3 mb-3">
                                 <div className="col-md-6">
-                                    <label htmlFor="region">Región *</label>
+                                    <label htmlFor="region">Región</label>
                                     <input
                                         type="text"
                                         id="region"
@@ -172,7 +182,7 @@ const AgregarUsuario = () => {
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label htmlFor="comuna">Comuna *</label>
+                                    <label htmlFor="comuna">Comuna</label>
                                     <input
                                         type="text"
                                         id="comuna"
@@ -183,23 +193,21 @@ const AgregarUsuario = () => {
                                 </div>
                             </div>
 
-                            {/* Dirección */}
                             <div className="mb-3">
                                 <label htmlFor="direccion">Dirección *</label>
                                 <input
                                     type="text"
                                     id="direccion"
                                     className="form-control"
-                                    required
                                     value={formData.direccion}
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
-                            <div className="d-flex gap-2 mt-3 p-3 border-top">
-                                <Button label="Registrar usuario" type="submit" variant="primary" />
-                            </div>
+                            <Button label="Registrar usuario" type="submit" variant="primary" />
                         </form>
+
                     </div>
                 </div>
             </section>

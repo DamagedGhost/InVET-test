@@ -1,21 +1,19 @@
 import AdminTemplate from "../../templates/AdminTemplate";
 import { useNavigate } from 'react-router-dom';
-import useProductsViewModel from "../../viewmodels/useProductsViewModel"; // 1. Importar el hook
+import useProductsViewModel from "../../viewmodels/useProductsViewModel";
 
 const ListadoProductos = () => {
     
-    // 2. Obtener los productos y la función de eliminar
     const { products, deleteProducto } = useProductsViewModel();
     const navigate = useNavigate();
 
     const handleEliminar = (id) => {
-        if (window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
+        if (window.confirm("¿Estás seguro de que quieres eliminar (desactivar) este producto?")) {
             deleteProducto(id);
         }
     };
 
     const handleEditar = (id) => {
-        // Navegamos a la página de edición (la creamos en el paso 4)
         navigate(`/Admin/Inventario/EditarProducto/${id}`);
     };
 
@@ -32,53 +30,69 @@ const ListadoProductos = () => {
                 </nav>
 
                 <header className="d-flex align-items-start justify-content-between mb-4">
-                <div>
-                    <h1 className="h4 mb-1">Gestión de Inventario</h1>
-                    <p className="text-muted mb-0">Visualiza, crea y administra los productos del inventario.</p>
-                </div>
-                <div className="d-flex gap-2">
-                    <a className="btn btn-outline-primary" href="/Admin/Inventario/NuevoProducto">Crear producto</a>
-                    <a className="btn btn-primary" href="/Admin/Inventario/ListadoProductos">Mostrar productos</a>
-                </div>
+                    <div>
+                        <h1 className="h4 mb-1">Gestión de Inventario</h1>
+                        <p className="text-muted mb-0">Visualiza, crea y administra los productos.</p>
+                    </div>
+                    <div className="d-flex gap-2">
+                        <a className="btn btn-primary" href="/Admin/Inventario/NuevoProducto">Crear producto</a>
+                    </div>
                 </header>
                     <div className="table-responsive">
-                        <table id="dataTable" className="table table-striped table-bordered">
-                            <thead>
+                        <table id="dataTable" className="table table-striped table-bordered align-middle">
+                            <thead className="table-light">
                             <tr>
-                                <th>Codigo</th>
+                                <th>Código</th>
                                 <th>Nombre</th>
                                 <th>Precio</th>
                                 <th>Stock</th>
-                                <th>Stock Critico</th>
-                                <th>Categoria</th>
+                                <th>Estado</th> {/* NUEVA COLUMNA */}
+                                <th>Categoría</th>
                                 <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
-                                {/* 3. Mapear los productos para llenar la tabla */}
                                 {products.length > 0 ? (
                                     products.map((producto) => (
-                                        <tr key={producto.id}>
+                                        <tr key={producto.id} className={producto.activo === false ? 'table-secondary text-muted' : ''}>
                                             <td>{producto.codigo}</td>
-                                            {/* 'title' es el nombre en tu hook */}
-                                            <td>{producto.title}</td> 
+                                            <td>
+                                                {producto.title}
+                                                {producto.activo === false && <span className="badge bg-secondary ms-2">Eliminado</span>}
+                                            </td> 
                                             <td>${producto.price.toLocaleString()}</td>
-                                            <td>{producto.stock}</td>
-                                            <td>{producto.stockCritico}</td>
+                                            
+                                            {/* Stock en rojo si es 0 */}
+                                            <td className={producto.stock === 0 ? "text-danger fw-bold" : ""}>
+                                                {producto.stock}
+                                            </td>
+                                            
+                                            {/* Lógica de Estado */}
+                                            <td>
+                                                {producto.activo === false ? (
+                                                    <span className="badge bg-danger">Inactivo</span>
+                                                ) : (
+                                                    <span className="badge bg-success">Activo</span>
+                                                )}
+                                            </td>
+                                            
                                             <td>{producto.categoria}</td>
                                             <td>
                                                 <button 
                                                     className="btn btn-sm btn-primary"
                                                     onClick={() => handleEditar(producto.id)}
+                                                    disabled={producto.activo === false} // Opcional: Bloquear edición si está eliminado
                                                 >
                                                     Editar
                                                 </button>
-                                                <button 
-                                                    className="btn btn-sm btn-danger ms-2"
-                                                    onClick={() => handleEliminar(producto.id)}
-                                                >
-                                                    Eliminar
-                                                </button>
+                                                {producto.activo !== false && (
+                                                    <button 
+                                                        className="btn btn-sm btn-danger ms-2"
+                                                        onClick={() => handleEliminar(producto.id)}
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

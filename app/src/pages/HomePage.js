@@ -4,12 +4,16 @@ import ProductGrid from '../components/organisms/ProductGrid';
 import Button from '../components/atoms/Button';
 import useProductsViewModel from '../viewmodels/useProductsViewModel';
 import RegLinks from '../components/molecules/RegLinks';
-import LoadingSpinner from '../components/atoms/LoadingSpinner'; // Importar Spinner
+import LoadingSpinner from '../components/atoms/LoadingSpinner'; 
 import '../App.css';
 
 const HomePage = () => {
-  // Extraemos 'loading' del hook
   const { products, loading } = useProductsViewModel();
+
+  // 1. FILTRO: Solo mostrar activos y con stock > 0
+  const productosDestacados = products
+    .filter(p => p.activo !== false && p.stock > 0)
+    .slice(0, 8); // Tomamos solo los primeros 8 VÁLIDOS
 
   return (
     <MainTemplate>
@@ -19,7 +23,7 @@ const HomePage = () => {
             <RegLinks />
           </div>
 
-          {/* 🔹 Hero Section Mejorado */}
+          {/* 🔹 Hero Section */}
           <section className="container my-4">
             <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '20px' }}>
                 <div className="row g-0">
@@ -50,11 +54,18 @@ const HomePage = () => {
             </div>
           </section>
 
-          {/* 🔹 Grid de Productos con Loading */}
+          {/* 🔹 Grid de Productos Destacados */}
           {loading ? (
              <LoadingSpinner text="Cargando nuestros productos destacados..." />
           ) : (
-             <ProductGrid products={products.slice(0, 8)} /> // Mostramos solo los primeros 8 en Home
+             <div className="container my-5">
+                <h3 className="mb-4 fw-bold text-center text-secondary">Productos Destacados</h3>
+                {productosDestacados.length > 0 ? (
+                    <ProductGrid products={productosDestacados} />
+                ) : (
+                    <p className="text-center text-muted">No hay productos destacados disponibles por el momento.</p>
+                )}
+             </div>
           )}
         </div>
     </MainTemplate>

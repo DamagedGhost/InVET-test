@@ -1,19 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const Usuario = require('../models/Usuario');
+
+// Importar el modelo correcto
+const Cliente = require('../models/Cliente');
+
+// Función para limpiar RUT
+const limpiarRut = (rut) => rut.replace(/\./g, "").replace("-", "");
 
 // ================================
-// Obtener todas las mascotas de un cliente por RUT
+// Obtener todas las mascotas
 // ================================
 router.get('/:rutCliente/mascotas', async (req, res) => {
-    const { rutCliente } = req.params;
-
     try {
-        const usuario = await Usuario.findOne({ rut: rutCliente });
+        const rutLimpio = limpiarRut(req.params.rutCliente);
+        const cliente = await Cliente.findOne({ rut: rutLimpio });
 
-        if (!usuario) return res.status(404).json({ message: "Cliente no encontrado" });
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado" });
 
-        res.json(usuario.mascotas || []);
+        res.json(cliente.mascotas || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -23,14 +27,13 @@ router.get('/:rutCliente/mascotas', async (req, res) => {
 // Obtener una mascota por ID
 // ================================
 router.get('/:rutCliente/mascotas/:idMascota', async (req, res) => {
-    const { rutCliente, idMascota } = req.params;
-
     try {
-        const usuario = await Usuario.findOne({ rut: rutCliente });
+        const rutLimpio = limpiarRut(req.params.rutCliente);
+        const cliente = await Cliente.findOne({ rut: rutLimpio });
 
-        if (!usuario) return res.status(404).json({ message: "Cliente no encontrado" });
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado" });
 
-        const mascota = usuario.mascotas.id(idMascota);
+        const mascota = cliente.mascotas.id(req.params.idMascota);
 
         if (!mascota) return res.status(404).json({ message: "Mascota no encontrada" });
 
@@ -44,17 +47,16 @@ router.get('/:rutCliente/mascotas/:idMascota', async (req, res) => {
 // Crear una mascota
 // ================================
 router.post('/:rutCliente/mascotas', async (req, res) => {
-    const { rutCliente } = req.params;
-
     try {
-        const usuario = await Usuario.findOne({ rut: rutCliente });
+        const rutLimpio = limpiarRut(req.params.rutCliente);
+        const cliente = await Cliente.findOne({ rut: rutLimpio });
 
-        if (!usuario) return res.status(404).json({ message: "Cliente no encontrado" });
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado" });
 
-        usuario.mascotas.push(req.body);
-        await usuario.save();
+        cliente.mascotas.push(req.body);
+        await cliente.save();
 
-        res.json(usuario.mascotas[usuario.mascotas.length - 1]);
+        res.json(cliente.mascotas[cliente.mascotas.length - 1]);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -64,19 +66,17 @@ router.post('/:rutCliente/mascotas', async (req, res) => {
 // Actualizar una mascota
 // ================================
 router.put('/:rutCliente/mascotas/:idMascota', async (req, res) => {
-    const { rutCliente, idMascota } = req.params;
-
     try {
-        const usuario = await Usuario.findOne({ rut: rutCliente });
+        const rutLimpio = limpiarRut(req.params.rutCliente);
+        const cliente = await Cliente.findOne({ rut: rutLimpio });
 
-        if (!usuario) return res.status(404).json({ message: "Cliente no encontrado" });
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado" });
 
-        const mascota = usuario.mascotas.id(idMascota);
-
+        const mascota = cliente.mascotas.id(req.params.idMascota);
         if (!mascota) return res.status(404).json({ message: "Mascota no encontrada" });
 
         Object.assign(mascota, req.body);
-        await usuario.save();
+        await cliente.save();
 
         res.json(mascota);
     } catch (err) {
@@ -85,22 +85,20 @@ router.put('/:rutCliente/mascotas/:idMascota', async (req, res) => {
 });
 
 // ================================
-// Eliminar una mascota
+// Eliminar mascota
 // ================================
 router.delete('/:rutCliente/mascotas/:idMascota', async (req, res) => {
-    const { rutCliente, idMascota } = req.params;
-
     try {
-        const usuario = await Usuario.findOne({ rut: rutCliente });
+        const rutLimpio = limpiarRut(req.params.rutCliente);
+        const cliente = await Cliente.findOne({ rut: rutLimpio });
 
-        if (!usuario) return res.status(404).json({ message: "Cliente no encontrado" });
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado" });
 
-        const mascota = usuario.mascotas.id(idMascota);
-
+        const mascota = cliente.mascotas.id(req.params.idMascota);
         if (!mascota) return res.status(404).json({ message: "Mascota no encontrada" });
 
         mascota.deleteOne();
-        await usuario.save();
+        await cliente.save();
 
         res.json({ message: "Mascota eliminada" });
     } catch (err) {

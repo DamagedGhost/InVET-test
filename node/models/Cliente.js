@@ -9,6 +9,7 @@ const MascotaSchema = new mongoose.Schema({
 }, { _id: true });
 
 const ClienteSchema = new mongoose.Schema({
+    rut: { type: String, required: true, unique: true },   
     nombre: { type: String, required: true },
     apellido: { type: String, required: true },
     telefono: { type: String },

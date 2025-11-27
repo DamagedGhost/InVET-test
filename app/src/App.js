@@ -18,9 +18,11 @@ import PagoErrorPage from './pages/Carrito/PagoErrorPage';
 // Autenticación
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import ListadoBoletas from './pages/Venta/ListadoBoletas';
 
 // Páginas Generales Admin
 import AdminHomePage from './pages/AdminHomePage';
+import Reporte from './pages/Reporte/Reporte';
 
 // --- Páginas de Usuarios ---
 import MainUsuario from './pages/Usuarios/MainUsuario';
@@ -70,6 +72,8 @@ function App() {
 
           {/* Dashboard Admin */}
           <Route path="/admin" element={<AdminHomePage />} />
+          <Route path="/admin/boletas" element={<ListadoBoletas />} />
+          <Route path="/admin/reporte" element={<Reporte />} />
 
           {/* CRUD Usuarios */}
           <Route path="/admin/usuarios" element={<MainUsuario />} />

@@ -26,7 +26,7 @@ const NavbarVerticalAdmin = () => {
                             </li>
 
                             <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Boleta">
+                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Boletas">
                                     <i className="bi bi-receipt-cutoff"></i>
                                     Ventas
                                 </Link>
@@ -60,12 +60,6 @@ const NavbarVerticalAdmin = () => {
                                 </Link>
                             </li>
 
-                            <li className="nav-item">
-                                <Link className="nav-link text-white d-flex align-items-center gap-3 py-2 px-3 rounded" to="/Admin/Categorias">
-                                    <i className="bi bi-tags"></i>
-                                    Categorías
-                                </Link>
-                            </li>
                         </ul>
                     </div>
                 </div>

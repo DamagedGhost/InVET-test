@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 
 // --- Definición de Rutas ---
 app.use('/api/productos', productoRoutes);
-app.use('/api/usuarios', userRoutes);
+app.use('/api/mascotas', userRoutes);
 app.use('/api/clientes', mascotasRoutes);
 app.use('/api/boletas', boletaRoutes); // <--- 2. USAR LA RUTA
 
