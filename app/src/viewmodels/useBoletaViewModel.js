@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// CORRECCIÓN: Usamos la misma IP que el resto del sistema (Auth y Productos)
+// Usamos la misma IP que el resto del sistema
 const API_URL = 'http://98.91.150.2:5000/api/boletas';
 
 const useBoletaViewModel = () => {
   const [boletas, setBoletas] = useState([]);
-  const [loading, setLoading] = useState(false); // Estado de carga para lecturas
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // --- CARGAR BOLETAS (READ) ---
@@ -14,6 +14,8 @@ const useBoletaViewModel = () => {
       setLoading(true);
       try {
           const res = await axios.get(API_URL);
+          
+          // AQUÍ ESTABA EL ERROR: Faltaba pasar 'items'
           const boletasAdaptadas = res.data.map(b => ({
               id: b._id,
               fecha: new Date(b.fecha).toLocaleDateString('es-CL', { 
@@ -22,9 +24,12 @@ const useBoletaViewModel = () => {
               }),
               total: b.total,
               estado: b.estado,
+              // CORRECCIÓN PRINCIPAL: Pasamos el array de items a la vista
+              items: b.items || [], 
               userId: b.usuario?._id || 'N/A',
               cliente: b.usuario ? `${b.usuario.nombre} ${b.usuario.apellidos}` : 'Usuario Eliminado'
           }));
+
           setBoletas(boletasAdaptadas);
       } catch (error) {
           console.error("Error cargando boletas", error);
@@ -41,7 +46,7 @@ const useBoletaViewModel = () => {
   // --- CREAR BOLETA (CREATE) ---
   const addBoleta = async (compraData) => {
       try {
-          // Validamos que no haya precios negativos antes de enviar
+          // Validamos que no haya precios negativos
           const hayNegativos = compraData.items.some(item => item.precio < 0);
           if (hayNegativos) {
               throw new Error("Error de integridad: El carrito contiene productos con precio negativo.");
@@ -51,7 +56,6 @@ const useBoletaViewModel = () => {
           await cargarBoletas(); 
           return true;
       } catch (error) {
-          // Extraemos el mensaje de error del backend si existe
           const mensaje = error.response?.data?.message || error.message || "Error desconocido";
           console.error("Error al crear la boleta:", mensaje);
           throw new Error(mensaje); 
@@ -64,7 +68,7 @@ const useBoletaViewModel = () => {
 
   return { 
       boletas, 
-      loading, // Exportamos estado de carga
+      loading, 
       error,
       getBoletasByUserId,
       addBoleta 

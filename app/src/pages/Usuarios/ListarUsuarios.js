@@ -20,12 +20,6 @@ const ListarUsuarios = () => {
         }
     };
 
-    
-    const handleVerHistorial = (id) => {
-        // Redirige al historial de compra (deberás implementar esta ruta)
-        navigate(`/Admin/Usuarios/HistorialCompra/${id}`); // <--- Faltaba el ${id}
-    };
-
 
     return (
         <AdminTemplate>
@@ -75,12 +69,6 @@ const ListarUsuarios = () => {
                                                     onClick={() => handleEliminar(user.id)}
                                                 >
                                                     Eliminar
-                                                </button>
-                                                <button 
-                                                    className="btn btn-sm btn-info"
-                                                    onClick={() => handleVerHistorial(user.id)}
-                                                >
-                                                    Historial
                                                 </button>
                                             </td>
                                         </tr>

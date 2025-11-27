@@ -8,7 +8,7 @@ const connectDB = require('./db');
 const productoRoutes = require('./routes/productos');
 const userRoutes = require('./routes/usuarios');
 const mascotasRoutes = require('./routes/mascotas');
-const boletaRoutes = require('./routes/Boletas'); // <--- 1. IMPORTAR RUTAS DE BOLETAS
+const boletaRoutes = require('./routes/Boletas');
 
 connectDB();
 
@@ -27,11 +27,16 @@ app.use((req, res, next) => {
     next();
 });
 
-// --- Definición de Rutas ---
+// --- Definición de Rutas (CORREGIDO) ---
 app.use('/api/productos', productoRoutes);
-app.use('/api/mascotas', userRoutes);
-app.use('/api/clientes', mascotasRoutes);
-app.use('/api/boletas', boletaRoutes); // <--- 2. USAR LA RUTA
+
+// ERROR ANTERIOR: app.use('/api/mascotas', userRoutes); 
+app.use('/api/usuarios', userRoutes); // <-- 1. Corregir ruta de usuarios
+
+// Mantenemos '/api/clientes' para la gestión de mascotas para evitar conflictos de ruta
+app.use('/api/clientes', mascotasRoutes); 
+
+app.use('/api/boletas', boletaRoutes);
 
 app.get('/', (req, res) => {
     res.send('API REST de InVET activa y conectada a MongoDB.');

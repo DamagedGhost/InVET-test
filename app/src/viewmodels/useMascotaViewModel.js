@@ -1,8 +1,6 @@
-// src/viewmodels/useMascotaViewModel.js
 import { useState, useCallback } from "react";
 
-// 👉 API REAL donde están los usuarios
-const API_BASE_URL = "http://98.91.150.2:5000/api/usuarios";
+const API_BASE_URL = "http://98.91.150.2:5000/api/clientes";
 
 const useMascotaViewModel = (rutCliente) => {
   const [mascotas, setMascotas] = useState([]);
@@ -10,148 +8,109 @@ const useMascotaViewModel = (rutCliente) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ==============================
-  // Obtener todas las mascotas
-  // ==============================
+  // Helper para preparar el RUT para la URL (Codificar, NO limpiar)
+  const formatRutForUrl = (rut) => {
+      // Si rutCliente es "12.345.678-9", encodeURIComponent lo deja seguro para viajar en URL
+      // pero mantiene los caracteres necesarios para que el backend lo encuentre.
+      return encodeURIComponent(rut);
+  };
+
   const fetchMascotas = useCallback(async () => {
     if (!rutCliente) return;
-
     try {
       setLoading(true);
-      setError(null);
-
-      const res = await fetch(`${API_BASE_URL}/${rutCliente}/mascotas`);
+      const rutUrl = formatRutForUrl(rutCliente); // Usamos el RUT completo
+      const res = await fetch(`${API_BASE_URL}/${rutUrl}/mascotas`);
 
       if (!res.ok) {
-        throw new Error(`Error al obtener mascotas (status ${res.status})`);
+        if(res.status === 404) {
+            setMascotas([]); // Si no existe el usuario, lista vacía o manejar error
+            return; 
+        }
+        throw new Error(`Error status ${res.status}`);
       }
-
       const data = await res.json();
       setMascotas(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("[FE-MASCOTAS] Error en fetchMascotas:", err);
+      console.error(err);
       setError(err.message);
-      setMascotas([]);
     } finally {
       setLoading(false);
     }
   }, [rutCliente]);
 
-  // ==============================
-  // Obtener una mascota por ID
-  // ==============================
-  const fetchMascotaById = useCallback(
-    async (idMascota) => {
+  const fetchMascotaById = useCallback(async (idMascota) => {
       if (!rutCliente || !idMascota) return;
-
       try {
         setLoading(true);
-        setError(null);
-
-        const res = await fetch(
-          `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            `Error al obtener mascota (status ${res.status})`
-          );
-        }
-
+        const rutUrl = formatRutForUrl(rutCliente);
+        const res = await fetch(`${API_BASE_URL}/${rutUrl}/mascotas/${idMascota}`);
+        if (!res.ok) throw new Error("Error fetching mascota");
         const data = await res.json();
         setMascota(data);
         return data;
       } catch (err) {
-        console.error("[FE-MASCOTAS] Error en fetchMascotaById:", err);
-        setError(err.message);
+        console.error(err);
         return null;
       } finally {
         setLoading(false);
       }
-    },
-    [rutCliente]
-  );
+    }, [rutCliente]);
 
-  // ==============================
-  // Crear mascota
-  // ==============================
   const createMascota = async (rut, nuevaMascota) => {
-  const res = await fetch(`${API_BASE_URL}/${rut}/mascotas`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(nuevaMascota),
-  });
-};
-
-
-  // ==============================
-  // Actualizar mascota
-  // ==============================
-  const updateMascota = async (idMascota, mascotaEditada) => {
-    if (!rutCliente || !idMascota) return null;
-
     try {
-      setLoading(true);
-      setError(null);
+        // AQUÍ EL CAMBIO CLAVE: No hacemos replace, usamos el RUT tal cual viene del formulario (con formato)
+        const rutUrl = formatRutForUrl(rut); 
+        
+        console.log("Enviando petición a:", `${API_BASE_URL}/${rutUrl}/mascotas`);
 
-      const res = await fetch(
-        `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(mascotaEditada),
+        const res = await fetch(`${API_BASE_URL}/${rutUrl}/mascotas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevaMascota),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || "Error al crear mascota");
         }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Error al actualizar mascota (status ${res.status})`);
-      }
-
-      const actualizada = await res.json();
-
-      setMascotas((prev) =>
-        prev.map((m) => (m._id === actualizada._id ? actualizada : m))
-      );
-
-      return actualizada;
+        return true;
     } catch (err) {
-      console.error("[FE-MASCOTAS] Error en updateMascota:", err);
-      setError(err.message);
-      return null;
-    } finally {
-      setLoading(false);
+        console.error(err);
+        alert(err.message);
+        return false;
     }
   };
 
-  // ==============================
-  // Eliminar mascota
-  // ==============================
-  const deleteMascota = async (idMascota) => {
-    if (!rutCliente || !idMascota) return;
-
+  const updateMascota = async (idMascota, mascotaEditada) => {
+    if (!rutCliente) return null;
     try {
-      setLoading(true);
-      setError(null);
-
-      const res = await fetch(
-        `${API_BASE_URL}/${rutCliente}/mascotas/${idMascota}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Error al eliminar mascota (status ${res.status})`);
-      }
-
-      await res.json();
-
-      setMascotas((prev) => prev.filter((m) => m._id !== idMascota));
+        const rutUrl = formatRutForUrl(rutCliente);
+        const res = await fetch(`${API_BASE_URL}/${rutUrl}/mascotas/${idMascota}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(mascotaEditada),
+        });
+        if (!res.ok) throw new Error("Error update");
+        return await res.json();
     } catch (err) {
-      console.error("[FE-MASCOTAS] Error en deleteMascota:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+        console.error(err);
+        return null;
+    }
+  };
+
+  const deleteMascota = async (idMascota) => {
+    if (!rutCliente) return;
+    try {
+        const rutUrl = formatRutForUrl(rutCliente);
+        const res = await fetch(`${API_BASE_URL}/${rutUrl}/mascotas/${idMascota}`, {
+            method: "DELETE",
+        });
+        if (res.ok) {
+            setMascotas((prev) => prev.filter((m) => m._id !== idMascota));
+        }
+    } catch (err) {
+        console.error(err);
     }
   };
 
@@ -167,7 +126,5 @@ const useMascotaViewModel = (rutCliente) => {
     deleteMascota,
   };
 };
-
-
 
 export default useMascotaViewModel;
