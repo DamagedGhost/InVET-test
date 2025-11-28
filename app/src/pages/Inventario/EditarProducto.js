@@ -4,14 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useProductsViewModel from "../../viewmodels/useProductsViewModel";
 
 const EditarProducto = () => {
-    const { id } = useParams(); // Obtiene el ID (que ahora es el _id de MongoDB)
+    const { id } = useParams();
     const navigate = useNavigate();
-    // 1. Reemplazamos getProductoById con fetchProductoById
     const { fetchProductoById, updateProducto } = useProductsViewModel();
 
-    // Estado local del formulario
     const [formData, setFormData] = useState({
-        id: id, // Mantenemos el ID de la URL
+        id: id,
         codigo: '',
         title: '',
         descripcion: '',
@@ -23,24 +21,19 @@ const EditarProducto = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
 
-    // Cargar los datos del producto cuando el componente se monte
     useEffect(() => {
         const loadProductData = async () => {
             setIsLoading(true);
-            // 2. Usamos la nueva función asíncrona para obtener los datos
             const producto = await fetchProductoById(id);
             
             if (producto) {
-                // Mantenemos los valores como números/strings según vienen de la API
                 setFormData({
                     ...producto,
-                    // Aseguramos que los valores sean utilizables
                     price: producto.price || 0,
                     stock: producto.stock || 0,
                     stockCritico: producto.stockCritico || 0,
                 }); 
             } else {
-                // window.alert("Producto no encontrado o error de conexión."); // Evitar alert
                 console.error("Producto no encontrado o error de conexión.");
                 navigate('/Admin/Inventario/ListadoProductos');
             }
@@ -48,14 +41,19 @@ const EditarProducto = () => {
         };
 
         loadProductData();
-        // Las dependencias solo incluyen el ID y la función de fetch
     }, [id, fetchProductoById, navigate]);
 
 
     const handleChange = (e) => {
         const { name, value, type } = e.target;
-        // Convertir valores numéricos a número ANTES de guardarlos en el estado
-        const parsedValue = (type === 'number' || name === 'price' || name === 'stock' || name === 'stockCritico') 
+        
+        // --- VALIDACIÓN 1: Bloqueo de negativos ---
+        if (type === 'number' && Number(value) < 0) {
+            return; // Ignorar entrada negativa
+        }
+
+        // Convertir valores numéricos
+        const parsedValue = (type === 'number' || ['price','stock','stockCritico'].includes(name)) 
                             ? Number(value) : value;
 
         setFormData(prevData => ({
@@ -67,21 +65,23 @@ const EditarProducto = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // 3. Await la actualización
+        // --- VALIDACIÓN 2: Check final antes de guardar ---
+        if (formData.price < 0 || formData.stock < 0 || formData.stockCritico < 0) {
+            alert("Los valores numéricos no pueden ser negativos.");
+            return;
+        }
+
         const success = await updateProducto(formData.id, formData);
         
         if (success) {
-            // window.alert('¡Producto actualizado con éxito!'); // Evitar alert
             console.log('¡Producto actualizado con éxito!');
             navigate('/Admin/Inventario/ListadoProductos');
         }
-        // Si no es exitoso, el hook ya mostró un alert de error.
     };
 
     if (isLoading) {
         return <AdminTemplate>Cargando producto...</AdminTemplate>;
     }
-
 
     return (
         <AdminTemplate>
@@ -118,15 +118,11 @@ const EditarProducto = () => {
                             </div>
                         </div>
                         
-                        {/* --- CAMPO DE IMAGEN --- */}
                         <div className="mb-3">
                             <label htmlFor="image">URL de la Imagen</label>
                             <input 
-                                type="text" 
-                                id="image" 
-                                name="image"
-                                value={formData.image} 
-                                onChange={handleChange}
+                                type="text" id="image" name="image"
+                                value={formData.image} onChange={handleChange}
                                 className="form-control" 
                                 placeholder="https://ejemplo.com/imagen.png"
                             />
@@ -146,7 +142,7 @@ const EditarProducto = () => {
                                 <label htmlFor="price">Precio *</label>
                                 <input 
                                     type="number" id="price" name="price"
-                                    // Aseguramos que el valor es numérico para el input
+                                    min="0" // HTML VALIDATION
                                     value={formData.price} onChange={handleChange}
                                     required className="form-control" 
                                 />
@@ -155,6 +151,7 @@ const EditarProducto = () => {
                                 <label htmlFor="stock">Stock *</label>
                                 <input 
                                     type="number" id="stock" name="stock"
+                                    min="0" // HTML VALIDATION
                                     value={formData.stock} onChange={handleChange}
                                     required className="form-control" 
                                 />
@@ -163,6 +160,7 @@ const EditarProducto = () => {
                                 <label htmlFor="stockCritico">Stock Crítico</label>
                                 <input 
                                     type="number" id="stockCritico" name="stockCritico"
+                                    min="0" // HTML VALIDATION
                                     value={formData.stockCritico} onChange={handleChange}
                                     className="form-control" 
                                 />

@@ -1,25 +1,32 @@
 import AdminTemplate from "../../templates/AdminTemplate";
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import useProductsViewModel from "../../viewmodels/useProductsViewModel"; // 1. Importar el hook
+import useProductsViewModel from "../../viewmodels/useProductsViewModel";
 
 const NuevoProducto = () => {
     const navigate = useNavigate();
-    const { addProducto } = useProductsViewModel(); // 2. Traer la función 'addProducto'
+    const { addProducto } = useProductsViewModel();
 
     const [formData, setFormData] = useState({
         codigo: '',
-        title: '', // Cambiado de 'nombre' a 'title' para coincidir con tu hook
+        title: '',
         descripcion: '',
-        price: '', // 'price' en lugar de 'precio'
+        price: '', 
         stock: '',
         stockCritico: '',
         categoria: '',
-        image: '', // <-- CAMPO NUEVO AÑADIDO
+        image: '',
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+
+        // --- VALIDACIÓN 1: Bloqueo de negativos en tiempo real ---
+        if (type === 'number') {
+            // Si el valor es negativo, no hacemos nada (no actualizamos el estado)
+            if (value < 0) return;
+        }
+
         setFormData(prevData => ({
             ...prevData,
             [name]: value
@@ -29,11 +36,21 @@ const NuevoProducto = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // 3. Llamar a la función del hook con los datos del formulario
+        // --- VALIDACIÓN 2: Lógica de negocio antes de enviar ---
+        if (Number(formData.price) < 0 || Number(formData.stock) < 0 || Number(formData.stockCritico) < 0) {
+            alert("Error: No se permiten valores negativos en Precio, Stock o Stock Crítico.");
+            return;
+        }
+
+        // Validación extra: El precio no debería ser 0 (opcional, depende de tu negocio)
+        if (Number(formData.price) === 0) {
+            if(!window.confirm("¿Estás seguro de que el precio del producto es $0?")) {
+                return;
+            }
+        }
+
         addProducto(formData); 
-        
         alert('¡Producto agregado con éxito!');
-        // 4. Redirigir al listado para ver el nuevo producto
         navigate('/Admin/Inventario/ListadoProductos'); 
     };
 
@@ -85,15 +102,11 @@ const NuevoProducto = () => {
                       </div>
                     </div>
 
-                    {/* Imagen */}
                     <div className="mb-3">
                       <label htmlFor="image">URL de la Imagen</label>
                       <input
-                        type="text"
-                        id="image"
-                        name="image"
-                        value={formData.image}
-                        onChange={handleChange}
+                        type="text" id="image" name="image"
+                        value={formData.image} onChange={handleChange}
                         className="form-control"
                         placeholder="https://ejemplo.com/imagen.png"
                       />
@@ -113,6 +126,7 @@ const NuevoProducto = () => {
                         <label htmlFor="price">Precio *</label>
                         <input
                           type="number" id="price" name="price"
+                          min="0" step="1" // VALIDACIÓN HTML
                           value={formData.price} onChange={handleChange}
                           required className="form-control"
                         />
@@ -121,6 +135,7 @@ const NuevoProducto = () => {
                         <label htmlFor="stock">Stock *</label>
                         <input
                           type="number" id="stock" name="stock"
+                          min="0" // VALIDACIÓN HTML
                           value={formData.stock} onChange={handleChange}
                           required className="form-control"
                         />
@@ -129,6 +144,7 @@ const NuevoProducto = () => {
                         <label htmlFor="stockCritico">Stock Crítico</label>
                         <input
                           type="number" id="stockCritico" name="stockCritico"
+                          min="0" // VALIDACIÓN HTML
                           value={formData.stockCritico} onChange={handleChange}
                           className="form-control"
                         />
